@@ -5,10 +5,11 @@ def create_app():
     
     app.config.from_pyfile('config.py')
 
-    # Blueprintの登録
-    from controller.A01 import A01_bp
-    app.register_blueprint(A01_bp,url_prefix='/templates/A01.html')
+    # Blueprintの登録  
+    from controller.B01 import B01_bp
+    app.register_blueprint(B01_bp,url_prefix='/templates/B01.html')
 
+    # 最初の画面(A01)
     @app.route('/')
     def home():
         return render_template('A01.html')

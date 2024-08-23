@@ -6,64 +6,48 @@
     <title>レビュー検索システム</title>
     <link rel=stylesheet href="{{ url_for('static', filename='css/A01.css') }}">
     <script type=text/javascript src="{{ url_for('static', filename='js/A01.js') }}"></script>
-    
-    <!-- javascriptを別のファイルに移すかどうか検討中 -->
-    <!-- <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const startDateInput = document.getElementById('startDate');
-            const endDateInput = document.getElementById('endDate');
-
-            const today = new Date().toISOString().split('T')[0];
-            startDateInput.setAttribute('max', today);
-            endDateInput.setAttribute('max', today);
-
-            startDateInput.addEventListener('change', function () {
-                endDateInput.setAttribute('min', this.value);
-            });
-
-            endDateInput.setAttribute('min', startDateInput.value);
-        });
-    </script> -->
 </head>
 
 <body>
-    <div class="search-container">
-        <h1 id="title">レビュー検索システム</h1>
-        <div class="instructions">
-            ✔️URLを入力してください
-        </div>
-        <div class="search-bar">
-            <i class="icon">&#x1F50D;</i>
-            <input type="url" id="urlInput" name="urlInput" value="" placeholder="URLを入力してください" maxlength="2083">
-        </div>
-        <div class="instructions">
-            ✔️表示するレビューの条件を指定してください
-        </div>
-        <div class="filter-box">
-            <div class="input-group">
-                <label for="startDate">期間</label>
-                <input type="date" id="startDate" name="startDate">
-                <span>〜</span>
-                <input type="date" id="endDate" name="endDate">
+    <form method="post" action="/A01">
+        <div class="search-container">
+            <h1 id="title">レビュー検索システム</h1>
+            <div class="instructions">
+                ✔️URLを入力してください
             </div>
-            <div class="checkbox-group">
-                <label for="category">種別</label>
-                <div>
-                    <input type="checkbox" id="positiveOpinion" name="positiveOpinion" checked>
-                    <label for="positiveOpinion">ポジティブな意見</label>
+            <div class="search-bar">
+                <i class="icon">&#x1F50D;</i>
+                <input type="url" id="urlInput" name="urlInput" value="" placeholder="URLを入力してください" maxlength="2083">
+            </div>
+            <div class="instructions">
+                ✔️表示するレビューの条件を指定してください
+            </div>
+            <div class="filter-box">
+                <div class="input-group">
+                    <label for="startDate">期間</label>
+                    <input type="date" id="startDate" name="startDate">
+                    <span>〜</span>
+                    <input type="date" id="endDate" name="endDate">
                 </div>
-                <div>
-                    <input type="checkbox" id="negativeOpinion" name="negativeOpinion" checked>
-                    <label for="negativeOpinion">ネガティブな意見</label>
+                <div class="checkbox-group">
+                    <label for="category">種別</label>
+                    <div>
+                        <input type="checkbox" id="positiveOpinion" name="positiveOpinion" checked>
+                        <label for="positiveOpinion">ポジティブな意見</label>
+                    </div>
+                    <div>
+                        <input type="checkbox" id="negativeOpinion" name="negativeOpinion" checked>
+                        <label for="negativeOpinion">ネガティブな意見</label>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label for="keyword">キーワード指定</label>
+                    <input type="text" id="keyword" name="keyword" value="" maxlength="30">
                 </div>
             </div>
-            <div class="input-group">
-                <label for="keyword">キーワード指定</label>
-                <input type="text" id="keyword" name="keyword" value="" maxlength="30">
-            </div>
+            <input type="submit" value="レビュー検索" class="search-button" id="searchButton" name="searchButton">
         </div>
-        <input type="submit" value="レビュー検索" class="search-button" id="searchButton" name="searchButton">
-    </div>
+    </form>
 </body>
 
 </html>
