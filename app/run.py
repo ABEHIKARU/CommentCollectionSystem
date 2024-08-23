@@ -2,8 +2,10 @@ from app import create_app
 from waitress import serve
 import threading, webbrowser
 
+# Flaskクラスのインスタンスを作成
 app = create_app()
 
+# 
 def open_browser():
     webbrowser.open('http://localhost:5000')
 
