@@ -13,7 +13,7 @@
         <div class="search-container">
             <h1 id="title">レビュー検索システム</h1>
             <div class="instructions">
-                ✔️URLを入力してください
+               ✔️URLを入力してください   <span class="required">【必須】</span>
             </div>
             <div class="search-bar">
                 <i class="icon">&#x1F50D;</i>
@@ -24,13 +24,13 @@
             </div>
             <div class="filter-box">
                 <div class="input-group">
-                    <label for="startDate">期間</label>
+                    <label for="startDate">期間<span class="required">【必須】</span></label>
                     <input type="date" id="startDate" name="startDate">
                     <span>〜</span>
                     <input type="date" id="endDate" name="endDate">
                 </div>
                 <div class="checkbox-group">
-                    <label for="category">種別</label>
+                    <label for="category">種別<span class="required">【必須】</span></label>
                     <div>
                         <input type="checkbox" id="positiveOpinion" name="positiveOpinion" checked>
                         <label for="positiveOpinion">ポジティブな意見</label>
@@ -42,6 +42,7 @@
                 </div>
                 <div class="input-group">
                     <label for="keyword">キーワード指定</label>
+                    
                     <input type="text" id="keyword" name="keyword" value="" maxlength="30">
                 </div>
             </div>
