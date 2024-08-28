@@ -24,7 +24,15 @@ def review_search():
         # # Validation and processing
         # if not url or len(url) > 2083 or re.search(r'[<>{}|\^~\[\] ]', url):
         #     flash("URLを正しく入力してください")
-       
+        
+        
+         # ネガポジ種別フラグの設定
+        if positive_opinion and negative_opinion:
+            flag = 1
+        elif positive_opinion:
+            flag = 2
+        elif negative_opinion:
+            flag = 3
     
         
         # Save to session
