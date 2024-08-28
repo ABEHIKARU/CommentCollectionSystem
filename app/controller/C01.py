@@ -19,4 +19,4 @@ def process_c01():
 def process_data(data):
     # フォームから送信されたデータを処理するロジック
     processed_data = data.upper()  # 例えば、入力データを大文字に変換
-    return processed_data
+    return processed_data 
