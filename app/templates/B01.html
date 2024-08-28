@@ -3,16 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>B01ページ</title>
+    <title>一覧画面</title>
+    <link rel=stylesheet href="{{ url_for('static', filename='css/B01.css') }}">
+    <script type=text/javascript src="{{ url_for('static', filename='js/B01.js') }}"></script>
 </head>
+
 <body>
-    <h1>B01ページにようこそ！</h1>
+    <h1>レビュー一覧</h1>
     <p>このページはA01から遷移してきました。</p>
-    {{session['url']}}
-    {{session['start_date']}}
-    {{session['end_date']}}
-    {{session['positive_opinion']}}
-    {{session['negative_opinion']}}
-    {{session['keyword']}}
+   
 </body>
 </html>
