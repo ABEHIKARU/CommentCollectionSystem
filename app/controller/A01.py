@@ -39,8 +39,7 @@ def review_search():
         session['url'] = url
         session['start_date'] = start_date
         session['end_date'] = end_date
-        session['positive_opinion'] = positive_opinion
-        session['negative_opinion'] = negative_opinion
+        session['flag'] = flag 
         session['keyword'] = keyword
 
  
