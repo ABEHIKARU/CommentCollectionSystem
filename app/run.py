@@ -10,7 +10,6 @@ if __name__ == "__main__":
     app.run(debug=True,host='localhost',port=5000)
 
 
-
 # # 本番設定
 # # ローカルホストを起動するメソッド
 # def open_browser():
