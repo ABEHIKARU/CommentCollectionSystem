@@ -50,6 +50,7 @@ h1 {
 }
 
 .filter-box .input-group {
+    position: relative; /* To position the icon inside */
     display: flex;
     align-items: center;
     margin-bottom: 15px;
@@ -62,8 +63,17 @@ h1 {
     white-space: nowrap;
 }
 
-.filter-box input[type="date"],
+
+
 .filter-box input[type="text"] {
+    padding: 10px 10px 10px 40px; /* Add padding to avoid overlap with icon */
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.filter-box input[type="date"] {
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 5px;
@@ -114,4 +124,12 @@ h1 {
 .input-group span {
     padding: 0 10px;
     color: #555;
+}
+
+.required {
+    color: red;
+}
+
+label .required {
+   color: red;
 }
