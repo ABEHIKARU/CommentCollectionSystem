@@ -37,14 +37,14 @@ def review_search():
 
  
     # 正常な場合、B01.htmlへリダイレクト
-        return redirect('/B01')
+    return redirect(url_for('b01_bp.show_b01'))
 
-    # GETリクエスト時またはエラー時のメッセージ表示
+#     # GETリクエスト時またはエラー時のメッセージ表示
     
-    return render_template('A01.html')
+#     return render_template('A01.html')
 
-@a01_bp.route('/B01')
-def b01():
-    return render_template('B01.html')
+# @a01_bp.route('/B01')
+# def b01():
+#     return render_template('B01.html')
 
 
