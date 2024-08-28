@@ -21,11 +21,29 @@ def review_search():
         negative_opinion = 'negativeOpinion' in request.form
         keyword = request.form.get('keyword', '').strip()
 
-        # Validation and processing
-        if not url or len(url) > 2083 or re.search(r'[<>{}|\^~\[\] ]', url):
-            flash("URLを正しく入力してください")
-            return render_template('A01.html')
+        # # Validation and processing
+        # if not url or len(url) > 2083 or re.search(r'[<>{}|\^~\[\] ]', url):
+        #     # flash("URLを正しく入力してください")
+        #     message = "URLを正しく入力してください"
+        #     return render_template('A01.html', message=message)
 
+        # URLのバリデーション
+        if not url or len(url) > 2083 or re.search(r'[<>{}|\^~\[\] ]', url):
+            return redirect(url_for('a01_bp.show_message', message="URLを正しく入力してください"))
+
+        # 期間のバリデーション
+        if not start_date or not end_date:
+            return redirect(url_for('a01_bp.show_message', message="期間を指定してください"))
+
+        # ポジティブ・ネガティブ選択チェック
+        if not positive_opinion and not negative_opinion:
+            return redirect(url_for('a01_bp.show_message', message="種別を選択してください"))
+
+        # キーワードのバリデーション
+        if len(keyword) > 30:
+            return redirect(url_for('a01_bp.show_message', message="キーワードを正しく入力してください"))
+        
+        
         # Save to session
         session['url'] = url
         session['start_date'] = start_date
@@ -41,4 +59,7 @@ def b01():
     return render_template('B01.html')
 
 
-
+@a01_bp.route('/show_message')
+def show_message():
+    message = request.args.get('message', '')
+    return render_template('A01.html', message=message)

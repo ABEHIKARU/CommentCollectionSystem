@@ -9,6 +9,11 @@
 </head>
 
 <body>
+    {% if message %}
+        <p>{{message}}</p>
+    {% endif %}
+
+
     <form method="post" action="/A01">
         <div class="search-container">
             <h1 id="title">レビュー検索システム</h1>
