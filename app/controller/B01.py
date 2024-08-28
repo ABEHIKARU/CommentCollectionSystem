@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template
 
-B01_bp = Blueprint('B01', __name__)
+b01_bp = Blueprint('b01_bp', __name__)
 
-@B01_bp.route('/')
-def show_B01():
+@b01_bp.route('/')
+def show_b01():
     return render_template('B01.html')

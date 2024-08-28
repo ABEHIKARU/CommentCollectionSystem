@@ -5,7 +5,7 @@ import threading, webbrowser
 # Flaskクラスのインスタンスを作成
 app = create_app()
 
-# 
+# ローカルホストを起動するメソッド
 def open_browser():
     webbrowser.open('http://localhost:5000')
 
