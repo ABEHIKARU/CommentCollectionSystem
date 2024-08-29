@@ -15,6 +15,7 @@ def show_b01():
         start_date=session['start_date']
         end_date=session['end_date']
         flag=session['flag']
+        keyword=session['keyword']
         
         # app_idからアプリ名を特定
         appName_Search = search(
@@ -23,6 +24,7 @@ def show_b01():
             country="jp",  # 日本
             n_hits=1  # 検索件数1件のみ
         )
+        # アプリ名のみを取得
         appName=appName_Search[0]['title']        
         
         # ネガポジ種別フラグの変換処理
@@ -33,8 +35,12 @@ def show_b01():
         elif flag==3:
             sentiment='ネガティブ'
             
+        # 指定キーワードがNoneだった場合、「なし」に変換
+        if keyword==None:
+            keyword="なし"
+            
         # B01.htmlへ遷移            
-        return render_template('B01.html',sentiment=sentiment,appName=appName)
+        return render_template('B01.html',appName=appName,start_date=start_date,end_date=end_date,sentiment=sentiment,keyword=keyword)
     else:
     # セッションに値がセットされていない場合の処理
         errorMessage="データの取得に失敗しました"
