@@ -35,6 +35,16 @@ def review_search():
             flash("URLからapp_idを抽出できませんでした。正しいGoogle PlayのURLを入力してください。")
             return redirect(url_for('a01_bp.review_search'))
         
+        # 期間の入力チェック
+        if not start_date or not end_date:
+           flash("期間を指定してください")
+           return redirect(url_for('a01_bp.review_search'))
+       
+        # ポジティブ・ネガティブ選択チェック
+        if not positive_opinion and not negative_opinion:
+           flash("種別を選択してください")
+           return redirect(url_for('a01_bp.review_search'))
+        
         # ネガポジ種別フラグの設定
         if positive_opinion and negative_opinion:
             flag = 1
@@ -42,7 +52,14 @@ def review_search():
             flag = 2
         elif negative_opinion:
             flag = 3
-    
+            
+        # キーワードの入力チェック
+        if len(keyword) > 30:
+           flash("キーワードを正しく入力してください")
+           return redirect(url_for('a01_bp.review_search'))
+        elif keyword == "":
+            keyword = None
+
         
         # セッション登録
         session['app_id'] = app_id
