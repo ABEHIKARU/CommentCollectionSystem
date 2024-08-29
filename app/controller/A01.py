@@ -5,7 +5,7 @@ import secrets
 # Blueprintを作成
 a01_bp = Blueprint('a01_bp', __name__)
 
-# a01_bp.secret_key = secrets.token_hex(16)
+
 
 @a01_bp.route('/')
 def index():
@@ -26,7 +26,7 @@ def review_search():
         #     flash("URLを正しく入力してください")
         
         
-         # ネガポジ種別フラグの設定
+        # ネガポジ種別フラグの設定
         if positive_opinion and negative_opinion:
             flag = 1
         elif positive_opinion:
@@ -35,7 +35,7 @@ def review_search():
             flag = 3
     
         
-        # Save to session
+        # セッション登録
         session['url'] = url
         session['start_date'] = start_date
         session['end_date'] = end_date
