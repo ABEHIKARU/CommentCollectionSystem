@@ -21,16 +21,16 @@ def review_search():
         negative_opinion = 'negativeOpinion' in request.form
         keyword = request.form.get('keyword', '').strip()
 
-        # # Validation and processing
-        # if not url or len(url) > 2083 or re.search(r'[<>{}|\^~\[\] ]', url):
-        #     flash("URLを正しく入力してください")
+        # 未入力チェック,文字数チェック,無効な文字チェック
+        if not url or len(url) > 2083 or re.search(r'[<>{}|\^~\[\] ]', url):
+            flash("URLを正しく入力してください")
+            return redirect(url_for('a01_bp.review_search'))
         
         # 正規表現パターンでURLを検証し、app_idを抽出
         google_play_pattern = r'^(https?://)?play\.google\.com/store/apps/details\?id=([a-zA-Z0-9._-]+)(&[a-zA-Z0-9._=&-]*)?$'
         match = re.match(google_play_pattern, url)
         if match:
             app_id = match.group(2)  # app_idを抽出
-
         else:
             flash("URLからapp_idを抽出できませんでした。正しいGoogle PlayのURLを入力してください。")
             return redirect(url_for('a01_bp.review_search'))
