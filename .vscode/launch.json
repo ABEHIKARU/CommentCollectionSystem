@@ -1,0 +1,22 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: Flask",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "app/run.py",
+            "console": "integratedTerminal",
+            "env": {
+                "FLASK_APP": "app.py",
+                "FLASK_ENV": "development"
+            },
+            "args": [
+                "run",
+                "--no-reload"  // これはオプションです。自動リロードを無効にします。
+            ],
+            "jinja": true,
+            "justMyCode": true
+        }
+    ]
+}
