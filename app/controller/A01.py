@@ -32,7 +32,7 @@ def review_search():
         if match:
             app_id = match.group(2)  # app_idを抽出
         else:
-            flash("URLからapp_idを抽出できませんでした。正しいGoogle PlayのURLを入力してください。")
+            flash("入力されたURLはシステム対象外です")
             return redirect(url_for('a01_bp.review_search'))
         
         # 期間の入力チェック
