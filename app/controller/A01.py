@@ -25,6 +25,15 @@ def review_search():
         # if not url or len(url) > 2083 or re.search(r'[<>{}|\^~\[\] ]', url):
         #     flash("URLを正しく入力してください")
         
+        # 正規表現パターンでURLを検証し、app_idを抽出
+        google_play_pattern = r'^(https?://)?play\.google\.com/store/apps/details\?id=([a-zA-Z0-9._-]+)(&[a-zA-Z0-9._=&-]*)?$'
+        match = re.match(google_play_pattern, url)
+        if match:
+            app_id = match.group(2)  # app_idを抽出
+
+        else:
+            flash("URLからapp_idを抽出できませんでした。正しいGoogle PlayのURLを入力してください。")
+            return redirect(url_for('a01_bp.review_search'))
         
         # ネガポジ種別フラグの設定
         if positive_opinion and negative_opinion:
@@ -36,7 +45,7 @@ def review_search():
     
         
         # セッション登録
-        session['url'] = url
+        session['app_id'] = app_id
         session['start_date'] = start_date
         session['end_date'] = end_date
         session['flag'] = flag 

@@ -12,11 +12,22 @@
     <!-- {% if message %}
         <p>{{ message }}</p>
     {% endif %} -->
-
+ 
 
     <form method="post" action="/A01">
         <div class="search-container">
             <h1 id="title">レビュー検索システム</h1>
+                <!--エラーメッセージの表示-->
+                {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        <div class="flash-messages">
+                            {% for message in messages %}
+                                <p class="flash-message">{{ message }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% endwith %}
+
             <div class="instructions">
                ✔️URLを入力してください   <span class="required">【必須】</span>
             </div>
