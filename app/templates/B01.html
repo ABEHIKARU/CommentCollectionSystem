@@ -11,7 +11,7 @@
 <body>
     <h1>レビュー一覧</h1>
     <div>
-        <table border="1">
+        <table>
             <tr>
                 <td>アプリ名：</td>
                 <td>xxxxxxxxxx</td>
@@ -31,7 +31,7 @@
         </table>
         
     <form method="post" action="/B01">
-        <div>スイッチをオンにした場合、選択行の内容が原文に置き換わります</div>
+        <p>スイッチをオンにした場合、選択行の内容が原文に置き換わります</p>
         <div>一括操作：<input type="checkbox"></div>        
 
         <table border="1">
@@ -39,8 +39,12 @@
             <th>投稿日時</th>
             <th>+/-</th>
             <th>内容</th>
-            <th>&emsp;&emsp;</th>
+            <th>&emsp;</th>
         </table>
+
+        <input type="submit" value="前へ" name="backpageButton">
+        <span>ページ目</span>
+        <input type="submit" value="次へ" name="nextpageButton">
     </form>
         
         
