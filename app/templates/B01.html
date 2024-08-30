@@ -42,6 +42,10 @@
             <th>&emsp;</th>
         </table>
 
+        {% if errorMessage_list %}
+            <p>{{errorMessage_list}}</p>
+        {% endif %}
+
         <input type="submit" value="前へ" name="backpageButton">
         <span>ページ目</span>
         <input type="submit" value="次へ" name="nextpageButton">

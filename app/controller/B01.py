@@ -1,7 +1,6 @@
 from flask import Blueprint, render_template, session
 from google_play_scraper import search,Sort, reviews
 import pandas as pd
-from datetime import date
 
 
 b01_bp = Blueprint('b01_bp', __name__)
@@ -39,31 +38,42 @@ def show_b01():
             sentiment='ネガティブ'
             
         # 指定キーワードがNoneだった場合、「なし」に変換
-        if keyword==None:
+        if keyword is None:
             keyword="なし"
             
+        
         # レビュー1000件抽出
         reviews_scraping, continuation_token = reviews(
             app_id, 
             lang='ja',
             country='jp',
             sort=Sort.NEWEST, # 新しい順に抽出
-            count=200, # 1000件抽出(テスト段階では200件)
+            count=1000, # 1000件抽出
         )
+
+        # レビューが存在しない場合
+        if not reviews_scraping:
+            errorMessage_list="条件に一致するレビューが見つかりませんでした"
+            return render_template('B01.html',errorMessage_list=errorMessage_list)
+
         # データフレームに変換
-        df=pd.DataFrame(reviews_scraping)
+        df_original=pd.DataFrame(reviews_scraping)
         # レビュー原文と投稿日時のみ格納
-        df_mini=df[['at','content']]
-        # 日付形式の変更
-        df_mini['at'] = pd.to_datetime(df_mini['at']).dt.strftime('%Y/%m/%d %H:%M')    
-        
+        df=df_original[['at','content']]
+                        
         # 終了日探索
+        end_date_search = pd.to_datetime(end_date)
+        start_date_search = pd.to_datetime(start_date)
         
-        
+        # 終了日より過去のデータを抽出
+        filtered_df = df[df['at'] < end_date_search]
+        # 日付形式の変更
+        filtered_df['at'] = filtered_df['at'].dt.strftime('%Y/%m/%d %H:%M')
         
         # B01.htmlへ遷移            
         return render_template('B01.html',appName=appName,start_date=start_date,end_date=end_date,sentiment=sentiment,keyword=keyword)
+    
     else:
     # セッションに値がセットされていない場合の処理
-        errorMessage="データの取得に失敗しました"
-        return render_template('A01.html')    
+        errorMessage_list="データの取得に失敗しました"
+        return render_template('B01.html',errorMessage_list=errorMessage_list)    
