@@ -134,3 +134,6 @@ label .required {
    color: red;
 }
 
+.flash-message {
+    color: red;
+}
