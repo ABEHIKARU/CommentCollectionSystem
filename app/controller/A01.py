@@ -15,8 +15,8 @@ def index():
 def review_search():
     if request.method == 'POST':
         url = request.form.get('urlInput', '').strip()
-        start_date = request.form.get('startDate')
-        end_date = request.form.get('endDate')
+        start_date = request.form.get('startDate').replace('-', '/')
+        end_date = request.form.get('endDate').replace('-', '/')
         positive_opinion = 'positiveOpinion' in request.form
         negative_opinion = 'negativeOpinion' in request.form
         keyword = request.form.get('keyword', '').strip()
