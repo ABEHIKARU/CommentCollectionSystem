@@ -15,8 +15,8 @@ def index():
 def review_search():
     if request.method == 'POST':
         url = request.form.get('urlInput', '').strip()
-        start_date = request.form.get('startDate')
-        end_date = request.form.get('endDate')
+        start_date = request.form.get('startDate').replace('-', '/')
+        end_date = request.form.get('endDate').replace('-', '/')
         positive_opinion = 'positiveOpinion' in request.form
         negative_opinion = 'negativeOpinion' in request.form
         keyword = request.form.get('keyword', '').strip()
@@ -62,11 +62,16 @@ def review_search():
 
         
         # セッション登録
-        session['app_id'] = app_id
-        session['start_date'] = start_date
-        session['end_date'] = end_date
-        session['flag'] = flag 
-        session['keyword'] = keyword
+        try:
+            session['app_id'] = app_id
+            session['start_date'] = start_date
+            session['end_date'] = end_date
+            session['flag'] = flag 
+            session['keyword'] = keyword
+        except Exception as e:
+            # セッション登録に失敗した場合
+            flash("データ送信に失敗しました")
+            return redirect(url_for('a01_bp.review_search'))
 
  
         # 正常な場合、B01.htmlへリダイレクト
