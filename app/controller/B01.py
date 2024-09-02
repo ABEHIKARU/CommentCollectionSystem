@@ -32,12 +32,13 @@ def show_b01():
     # ネガポジ種別フラグの文字列化
     sentiment = convert_sentiment_flag(flag)
 
-    # 終了日から過去21件のレビューを取得
+    # レビュー抽出
     end_date_search = pd.to_datetime(end_date)
     start_date_search = pd.to_datetime(start_date)
     df_reviews = scraping_reviews(app_id, end_date_search,start_date_search)
     
-    
+    # キーワードフィルタリング
+    #if 
 
     # データが存在する場合としない場合での分岐
     if not df_reviews.empty:
@@ -133,4 +134,4 @@ def scraping_reviews(app_id, end_date_search, start_date_search):
 
     return df_S
 
-def filterling_keyword():
+#def filterling_keyword():
