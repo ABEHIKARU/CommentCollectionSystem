@@ -36,11 +36,12 @@ def show_b01():
     end_date_search = pd.to_datetime(end_date)
     start_date_search = pd.to_datetime(start_date)
     df_reviews = scraping_reviews(app_id, end_date_search,start_date_search)
-    print(df_reviews)
+    
+    
 
     # データが存在する場合としない場合での分岐
     if not df_reviews.empty:
-        return render_template('B01.html', appName=appName, start_date=start_date, end_date=end_date, sentiment=sentiment, keyword=keyword, reviews=df_reviews.to_dict(orient='records'))
+        return render_template('B01.html', appName=appName, start_date=start_date, end_date=end_date, sentiment=sentiment, keyword=keyword)
     else:
         errorMessage_list = "条件に一致するレビューが見つかりませんでした"
         return render_template('B01.html', errorMessage_list=errorMessage_list)
@@ -73,12 +74,15 @@ def convert_sentiment_flag(flag):
     return sentiment_map[flag]
 
 def scraping_reviews(app_id, end_date_search, start_date_search):
-    """アプリのレビューを指定日まで取得し、終了日から過去21件を新しいデータフレームに格納して返す"""
+    """アプリのレビューを取得し、終了日から過去21件を新しいデータフレームに格納して返す"""
+    # 変数の初期化
     df_M = pd.DataFrame()
-    df_S = pd.DataFrame(columns=['at', 'content'])
     continuation_token = None
+    end_date_flag = False
+    start_date_flag = False
     
     while True:
+        # レビュー1000件抽出
         result, continuation_token = reviews(
             app_id, 
             lang='ja',
@@ -87,30 +91,46 @@ def scraping_reviews(app_id, end_date_search, start_date_search):
             count=1000,  # 1000件抽出
             continuation_token=continuation_token
         )
-
+        
+        # レビューが存在しない場合
         if not result:
             break
 
+        # 抽出した1000件のデータを継ぎ足す
         df_L = pd.DataFrame(result)
         df_M = pd.concat([df_M, df_L[['at', 'content']]], ignore_index=True)
         del df_L
 
-        # 終了日より過去のデータが見つかった場合、ループを終了
-        if df_M['at'].min() < end_date_search:
+        df_M['at'] = pd.to_datetime(df_M['at'])
+
+        # 終了日より過去のデータがある場合
+        if (df_M['at']<=end_date_search).any():
+            df_M = df_M[(df_M['at'] <= end_date_search)]
+            end_date_flag=True;
+            
+        # 開始日より未来のデータがある場合
+        if (df_M['at']>=start_date_search).any():
+            df_M = df_M[df_M['at'] >= start_date_search]
+            start_date_flag=True;
+
+        # データが21件以上ある場合
+        if df_M.shape[0]>=21 or (end_date_flag==True and start_date_flag==True):
+            # 過去21件のレビューを新しいデータフレームに格納
+            df_S = df_M.head(21)
+        
+            # 日付形式の変更
+            df_S['at'] = df_S['at'].dt.strftime('%Y/%m/%d %H:%M')
+            
+            print(df_S)
+            
             break
-    
-    # 終了日より過去のデータを保持
-    df_M['at'] = pd.to_datetime(df_M['at'])
-    df_M = df_M[(df_M['at'] < end_date_search)]
-    
-    # 開始日がある場合、開始日より過去のデータを除外
-    if not df_M[df_M['at'] == start_date_search].empty:
-        df_M = df_M[df_M['at'] >= start_date_search]
+        # 21件未満の場合
+        elif df_M.shape[0]<21:
+            continue
+        # 0件の場合
+        else:
+            break     
 
-    # 過去21件のレビューを新しいデータフレームに格納
-    df_S = df_M.head(22)
-
-    # 日付形式の変更
-    df_S['at'] = df_S['at'].dt.strftime('%Y/%m/%d %H:%M')
-    
     return df_S
+
+def filterling_keyword():
