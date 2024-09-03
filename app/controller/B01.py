@@ -35,10 +35,9 @@ def show_b01():
     # レビュー抽出
     end_date_search = pd.to_datetime(end_date)
     start_date_search = pd.to_datetime(start_date)
-    df_reviews = scraping_reviews(app_id, end_date_search,start_date_search)
+    df_reviews = scraping_reviews(app_id, end_date_search,start_date_search,keyword)
     
-    # キーワードフィルタリング
-    #if 
+    print(df_reviews)
 
     # データが存在する場合としない場合での分岐
     if not df_reviews.empty:
@@ -74,15 +73,17 @@ def convert_sentiment_flag(flag):
     }
     return sentiment_map[flag]
 
-def scraping_reviews(app_id, end_date_search, start_date_search):
-    """アプリのレビューを取得し、終了日から過去21件を新しいデータフレームに格納して返す"""
+def scraping_reviews(app_id, end_date_search,start_date_search,keyword):
+    """指定期間内のレビューを取得し、キーワードフィルタリングを行う"""
     # 変数の初期化
     df_M = pd.DataFrame()
+    df_S = pd.DataFrame()
     continuation_token = None
-    end_date_flag = False
-    start_date_flag = False
     
     while True:
+        end_date_flag = False
+        start_date_flag = False
+        
         # レビュー1000件抽出
         result, continuation_token = reviews(
             app_id, 
@@ -102,36 +103,45 @@ def scraping_reviews(app_id, end_date_search, start_date_search):
         df_M = pd.concat([df_M, df_L[['at', 'content']]], ignore_index=True)
         del df_L
 
+        # 日付型に変更
         df_M['at'] = pd.to_datetime(df_M['at'])
 
         # 終了日より過去のデータがある場合
         if (df_M['at']<=end_date_search).any():
             df_M = df_M[(df_M['at'] <= end_date_search)]
-            end_date_flag=True;
+            end_date_flag=True
             
         # 開始日より未来のデータがある場合
         if (df_M['at']>=start_date_search).any():
             df_M = df_M[df_M['at'] >= start_date_search]
-            start_date_flag=True;
-
-        # データが21件以上ある場合
-        if df_M.shape[0]>=21 or (end_date_flag==True and start_date_flag==True):
-            # 過去21件のレビューを新しいデータフレームに格納
-            df_S = df_M.head(21)
+            start_date_flag=True
         
-            # 日付形式の変更
-            df_S['at'] = df_S['at'].dt.strftime('%Y/%m/%d %H:%M')
+            # 21件未満の場合
+            if df_M.shape[0]<21:
+                continue
+            # 0件の場合
+            elif df_M.shape[0]:
+                break     
+        
+        
+        
+        # 詳細設計書 b-(b)
+        while True:
+            # データが21件以上ある場合
+            if df_M.shape[0]>=21 or (end_date_flag==True and start_date_flag==True): # TODO:21はあとで変数に変える
+                # 過去21件のレビューを新しいデータフレームに格納
+                df_S = df_M[0:21] # TODO:21はあとで変数に変える
+                
+                # キーワードが指定されている場合
+                if keyword != 'なし':
+                    df_S = df_S[df_S['content'].str.contains(keyword, case=False, na=False)]
             
-            print(df_S)
-            
-            break
-        # 21件未満の場合
-        elif df_M.shape[0]<21:
-            continue
-        # 0件の場合
-        else:
-            break     
+                    # キーワードフィルタリングの結果、データが0件になった場合
+                    if df_S.empty:
+                        continue
 
+                # 日付形式の変更
+                df_S['at'] = df_S['at'].dt.strftime('%Y/%m/%d %H:%M')
+                            
+                break
     return df_S
-
-#def filterling_keyword():
