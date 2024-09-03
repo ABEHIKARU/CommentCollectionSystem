@@ -119,33 +119,40 @@ def scraping_reviews(app_id, end_date_search,start_date_search,keyword):
         if (df_M['at']>=start_date_search).any():
             df_M = df_M[df_M['at'] >= start_date_search]
             start_date_flag=True
-        
-            # 21件未満の場合
-            if df_M.shape[0]<21:
-                continue
-            # 0件の場合
-            elif df_M.shape[0]:
-                break     
-        
-        
-        
-        # 詳細設計書 b-(b)
-        # while True:
-            # データが21件以上ある場合
+            
             if df_M.shape[0]>=21 or (end_date_flag==True and start_date_flag==True): # TODO:21はあとで変数に変える
                 # 過去21件のレビューを新しいデータフレームに格納
                 df_S = df_M[0:21] # TODO:21はあとで変数に変える
                 
-                # # キーワードが指定されている場合
-                # if keyword != 'なし':
-                #     df_S = df_S[df_S['content'].str.contains(keyword, case=False, na=False)]
-            
-                #     # キーワードフィルタリングの結果、データが0件になった場合
-                #     if df_S.empty:
-                #         continue
-
-                # 日付形式の変更
-                df_S['at'] = df_S['at'].dt.strftime('%Y/%m/%d %H:%M')
-                            
                 break
+            
+        
+            # # 21件未満の場合
+            # if df_M.shape[0]<21:
+            #     continue
+            # # 0件の場合
+            # elif df_M.shape[0]:
+            #     break     
+        
+        
+        
+        # # 詳細設計書 b-(b)
+        # # while True:
+        #     # データが21件以上ある場合
+        #     if df_M.shape[0]>=21 or (end_date_flag==True and start_date_flag==True): # TODO:21はあとで変数に変える
+        #         # 過去21件のレビューを新しいデータフレームに格納
+        #         df_S = df_M[0:21] # TODO:21はあとで変数に変える
+                
+        #         # # キーワードが指定されている場合
+        #         # if keyword != 'なし':
+        #         #     df_S = df_S[df_S['content'].str.contains(keyword, case=False, na=False)]
+            
+        #         #     # キーワードフィルタリングの結果、データが0件になった場合
+        #         #     if df_S.empty:
+        #         #         continue
+
+        #         # 日付形式の変更
+        #         df_S['at'] = df_S['at'].dt.strftime('%Y/%m/%d %H:%M')
+                            
+        #         break
     return df_S
