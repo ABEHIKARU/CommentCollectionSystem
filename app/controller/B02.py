@@ -6,8 +6,8 @@ from transformers import pipeline
 b02_bp = Blueprint('b02_bp', __name__)
 
 # Llama-3-ELYZA-JP-8Bを使ったモデルのロード
-classifier = pipeline("sentiment-analysis", model="Llama-3-ELYZA-JP-8B")
-
+classifier = pipeline("sentiment-analysis", model="elyza/Llama-3-ELYZA-JP-8B")
+sample_text = "これは素晴らしいアプリです！"
 def judge_sentiment(text):
     """レビューのネガポジを判断する関数"""
     result = classifier(text)[0]
