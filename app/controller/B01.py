@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, session
 from google_play_scraper import search, Sort, reviews
 import pandas as pd
+from controller.B02 import filter_reviews_by_sentiment  # B02からフィルタリング関数をインポート
 
 b01_bp = Blueprint('b01_bp', __name__)
 
@@ -38,6 +39,10 @@ def show_b01():
     df_reviews = scraping_reviews(app_id, end_date_search,start_date_search,keyword)
     
     print(df_reviews)
+    
+    # ネガポジフィルタリング
+    sentiment_filter = convert_sentiment_flag(flag)
+    filtered_reviews = filter_reviews_by_sentiment(df_reviews, sentiment_filter)
 
     # データが存在する場合としない場合での分岐
     if not df_reviews.empty:
@@ -126,19 +131,19 @@ def scraping_reviews(app_id, end_date_search,start_date_search,keyword):
         
         
         # 詳細設計書 b-(b)
-        while True:
+        # while True:
             # データが21件以上ある場合
             if df_M.shape[0]>=21 or (end_date_flag==True and start_date_flag==True): # TODO:21はあとで変数に変える
                 # 過去21件のレビューを新しいデータフレームに格納
                 df_S = df_M[0:21] # TODO:21はあとで変数に変える
                 
-                # キーワードが指定されている場合
-                if keyword != 'なし':
-                    df_S = df_S[df_S['content'].str.contains(keyword, case=False, na=False)]
+                # # キーワードが指定されている場合
+                # if keyword != 'なし':
+                #     df_S = df_S[df_S['content'].str.contains(keyword, case=False, na=False)]
             
-                    # キーワードフィルタリングの結果、データが0件になった場合
-                    if df_S.empty:
-                        continue
+                #     # キーワードフィルタリングの結果、データが0件になった場合
+                #     if df_S.empty:
+                #         continue
 
                 # 日付形式の変更
                 df_S['at'] = df_S['at'].dt.strftime('%Y/%m/%d %H:%M')
