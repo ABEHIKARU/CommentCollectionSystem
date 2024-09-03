@@ -41,11 +41,10 @@ def show_b01():
     print(df_reviews)
     
     # ネガポジフィルタリング
-    sentiment_filter = convert_sentiment_flag(flag)
-    filtered_reviews = filter_reviews_by_sentiment(df_reviews, sentiment_filter)
+    filtered_reviews = filter_reviews_by_sentiment(df_reviews, sentiment)
 
     # データが存在する場合としない場合での分岐
-    if not df_reviews.empty:
+    if not filtered_reviews.empty:
         return render_template('B01.html', appName=appName, start_date=start_date, end_date=end_date, sentiment=sentiment, keyword=keyword)
     else:
         errorMessage_list = "条件に一致するレビューが見つかりませんでした"
