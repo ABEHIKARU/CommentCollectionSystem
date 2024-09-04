@@ -23,12 +23,12 @@ def judge_sentiment(text):
     else:
         return "unknown"
 
-def filter_reviews_by_sentiment(df_reviews, filter_type):
+def filter_reviews_by_sentiment(df_reviews, sentiment):
     """ネガポジ判断を行い、指定された種別のみを保持する関数"""
     # ネガポジ判断の列を追加
     df_reviews['sentiment'] = df_reviews['content'].apply(judge_sentiment)
     
     # 指定された種別（"positive"または"negative"）のみを保持
-    filtered_df = df_reviews[df_reviews['sentiment'] == filter_type]
+    filtered_df = df_reviews[df_reviews['sentiment'] == sentiment]
     
     return filtered_df
