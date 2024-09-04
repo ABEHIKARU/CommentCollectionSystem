@@ -1,7 +1,7 @@
 from flask import Blueprint
 import pandas as pd
 from transformers import pipeline, AutoModelForSequenceClassification, BertJapaneseTokenizer
-from tqdm import tqdm
+
 
 # B02のBlueprint
 b02_bp = Blueprint('b02_bp', __name__)
