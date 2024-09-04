@@ -2,8 +2,7 @@ from flask import Flask
 
 # Blueprintをインポート
 from controller.A01 import a01_bp
-from controller.B01 import b01_bp
-from controller.C01 import c01_bp  
+from controller.B01 import b01_bp 
 from controller.B02 import b02_bp
 
 def create_app():
@@ -14,7 +13,6 @@ def create_app():
     # Blueprintをアプリケーションに登録
     app.register_blueprint(a01_bp, url_prefix='/')
     app.register_blueprint(b01_bp, url_prefix='/')
-    app.register_blueprint(c01_bp, url_prefix='/')
     app.register_blueprint(b02_bp, url_prefix='/')
 
     return app
