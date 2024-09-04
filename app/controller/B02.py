@@ -16,9 +16,9 @@ def judge_sentiment(text):
     result = classifier(text)[0]  # リストの最初の要素を取得
     sentiment = result['label']
     
-    if sentiment == 'ポジティブ':  # モデルによっては日本語ラベルを返す
+    if sentiment == 'POSITIVE':  # モデルによっては日本語ラベルを返す
         return "positive"
-    elif sentiment == 'ネガティブ':
+    elif sentiment == 'NEGATIVE':
         return "negative"
     else:
         return "unknown"
