@@ -28,7 +28,17 @@ def filter_reviews_by_sentiment(df_reviews, sentiment):
     # ネガポジ判断の列を追加
     df_reviews['sentiment'] = df_reviews['content'].apply(judge_sentiment)
     
-    # 指定された種別（"positive"または"negative"）のみを保持
-    filtered_df = df_reviews[df_reviews['sentiment'] == sentiment]
+    if sentiment == "ポジティブ・ネガティブ":
+        # 全件保持
+        filtered_df = df_reviews
+    elif sentiment == "ポジティブ":
+        # ポジティブのみ保持
+        filtered_df = df_reviews[df_reviews['sentiment'] == "ポジティブ"]
+    elif sentiment == "ネガティブ":
+        # ネガティブのみ保持
+        filtered_df = df_reviews[df_reviews['sentiment'] == "ネガティブ"]
+    else:
+        # 指定された sentiment が存在しない場合は空のデータフレームを返す
+        filtered_df = pd.DataFrame(columns=df_reviews.columns)
     
     return filtered_df
