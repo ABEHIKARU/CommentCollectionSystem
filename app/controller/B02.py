@@ -17,9 +17,9 @@ def judge_sentiment(text):
     sentiment = result['label']
     
     if sentiment == 'POSITIVE':  # モデルによっては日本語ラベルを返す
-        return "positive"
+        return "ポジティブ"
     elif sentiment == 'NEGATIVE':
-        return "negative"
+        return "ネガティブ"
     else:
         return "unknown"
 
