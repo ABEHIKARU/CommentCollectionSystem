@@ -1,37 +1,24 @@
-from flask import Blueprint, session
+from flask import Blueprint
 import pandas as pd
-from transformers import AutoModelForCausalLM, AutoTokenizer
-import torch
+from transformers import pipeline, AutoModelForSequenceClassification, BertJapaneseTokenizer
+from tqdm import tqdm
 
 # B02のBlueprint
 b02_bp = Blueprint('b02_bp', __name__)
 
-# モデルとトークナイザーの読み込み
-model_name = "elyza/Llama-3-ELYZA-JP-8B"
-tokenizer = AutoTokenizer.from_pretrained(model_name)
-model = AutoModelForCausalLM.from_pretrained(
-    model_name,
-    torch_dtype="auto",
-    device_map="auto",
-)
-model.eval()
+# 事前学習モデルセット → パイプラインへ
+model = AutoModelForSequenceClassification.from_pretrained('koheiduck/bert-japanese-finetuned-sentiment')
+tokenizer = BertJapaneseTokenizer.from_pretrained('cl-tohoku/bert-base-japanese-whole-word-masking')
+classifier = pipeline("sentiment-analysis", model=model, tokenizer=tokenizer)
+
 def judge_sentiment(text):
     """レビューのネガポジを判断する関数"""
-    # 感情分析用のプロンプトを作成
-    prompt = f"次の文はポジティブですか、ネガティブですか？\n\nテキスト: {text}\n\n感情:"
-
-    # トークナイズしてモデルに入力
-    inputs = tokenizer(prompt, return_tensors="pt")
-    with torch.no_grad():
-        outputs = model.generate(**inputs, max_length=100)
-
-    # モデルの出力をデコード
-    response = tokenizer.decode(outputs[0], skip_special_tokens=True)
-
-    # 結果を解析してポジティブかネガティブか判断
-    if "ポジティブ" in response:
+    result = classifier(text)[0]  # リストの最初の要素を取得
+    sentiment = result['label']
+    
+    if sentiment == 'ポジティブ':  # モデルによっては日本語ラベルを返す
         return "positive"
-    elif "ネガティブ" in response:
+    elif sentiment == 'ネガティブ':
         return "negative"
     else:
         return "unknown"
