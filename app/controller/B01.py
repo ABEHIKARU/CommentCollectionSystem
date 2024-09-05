@@ -85,6 +85,8 @@ def convert_sentiment_flag(flag):
 
 def scraping_reviews(app_id, end_date_search,start_date_search,keyword):
     """指定期間内のレビューを取得し、キーワードフィルタリングを行う"""
+    # 初期化
+    loop_break_flag = False
     # 変数の初期化
     df_M = pd.DataFrame()
     df_S = pd.DataFrame()
