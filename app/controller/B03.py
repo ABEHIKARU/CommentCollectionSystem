@@ -13,18 +13,31 @@ def summarize_and_soften(text):
     """
     レビューの要約と優しい言い方への変換を同時に行う関数
     """
-    prompt = f"次のレビューを要約し、さらに優しい言い方に変換してください: {text}"
+    prompt = f"次のレビューを要約し、さらに優しい言い回しに変換してください:\n\n{text}\n\n要約と優しい言い回し:"
     
     # テキストをトークン化
-    inputs = tokenizer(prompt, return_tensors="pt", max_length=512, truncation=True)
+    inputs = tokenizer(prompt, return_tensors="pt", max_length=1024, truncation=True)
     
-    # モデルに入力して生成
-    summary_ids = model.generate(inputs.input_ids, max_length=150, num_beams=4, early_stopping=True)
+    try:
+        # モデルに入力して生成
+        summary_ids = model.generate(
+            inputs.input_ids, 
+            max_length=200,  # 最大出力長を適切に設定
+            num_beams=5,     # ビームサーチのビーム数を増やす
+            early_stopping=True,
+            no_repeat_ngram_size=2,  # 同じn-gramの繰り返しを防ぐ
+            length_penalty=1.0  # 出力長を調整するペナルティ
+        )
+        
+        # 生成されたテキストをデコード
+        softened_summary = tokenizer.decode(summary_ids[0], skip_special_tokens=True)
     
-    # 生成されたテキストをデコード
-    softened_summary = tokenizer.decode(summary_ids[0], skip_special_tokens=True)
+    except Exception as e:
+        print(f"生成中にエラーが発生しました: {e}")
+        softened_summary = "要約と優しい言い回しの生成に失敗しました。"
     
     return softened_summary
+
 
 def process_reviews(filtered_reviews):
     """
