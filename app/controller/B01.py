@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, session
 from google_play_scraper import search, Sort, reviews
 import pandas as pd
 from controller.B02 import filter_reviews_by_sentiment  # B02からフィルタリング関数をインポート
-from controller.B03 import process_reviews
+from controller.B03 import process_reviews  
 
 b01_bp = Blueprint('b01_bp', __name__)
 
