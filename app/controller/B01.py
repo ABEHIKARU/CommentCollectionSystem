@@ -143,8 +143,8 @@ def scraping_reviews(app_id, end_date_search,start_date_search,keyword):
                     if df_S.empty:
                         i+=21
                         j+=21
-                    # 132行目に戻り、次の21件を確保する
-                    continue
+                        # 132行目に戻り、次の21件を確保する
+                        continue
                 # キーワード指定がない場合
                 else:
                     break
