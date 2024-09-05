@@ -38,6 +38,7 @@ def show_b01():
     start_date_search = pd.to_datetime(start_date)
     df_reviews = scraping_reviews(app_id, end_date_search,start_date_search,keyword)
     
+    pd.options.display.max_colwidth=10000
     print(df_reviews)
     
     # ネガポジフィルタリング
@@ -148,6 +149,9 @@ def scraping_reviews(app_id, end_date_search,start_date_search,keyword):
                 # キーワード指定がない場合
                 else:
                     break
+                
+                i+=21
+                j+=21
                 
             # 次の21件がない場合、内側のループを抜け、外側のループの最初の処理に戻る
             elif df_S[i:j].shape[0]!=21:
