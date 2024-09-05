@@ -31,15 +31,6 @@ def correct_spelling(text):
     corrected_words = [difflib.get_close_matches(word, words, n=1)[0] for word in words]
     return ' '.join(corrected_words)
 
-def post_process_summary(summary):
-    """
-    要約後のポストプロセッシング。繰り返しや冗長な部分を削除する。
-    """
-    summary = re.sub(r'(。)\1+', r'\1', summary)  # 繰り返される句点の削除
-    summary = re.sub(r'(同じフレーズ|文が繰り返された場合の処理)', r'\1', summary)  # 具体的な重複削除
-    summary = summary.strip()
-    return summary
-
 def summarize(text):
     """
     要約のみを行う関数
@@ -55,13 +46,13 @@ def summarize(text):
     inputs = tokenizer(prompt, return_tensors="pt", max_length=512, truncation=True)
     
     # モデルに入力して要約を生成 (num_beams を6に増やし、より多くの候補を探索)
-    summary_ids = model.generate(inputs.input_ids, max_length=50, num_beams=6, early_stopping=True)
+    summary_ids = model.generate(inputs.input_ids, max_length=60, num_beams=6, early_stopping=True)
     
     # 生成されたテキストをデコード
     summary = tokenizer.decode(summary_ids[0], skip_special_tokens=True)
     
-    # 冗長な部分を削除するポストプロセッシング
-    summary = post_process_summary(summary)
+    # 再度要約:が出力された場合の処理
+    summary = re.sub(r'要約[:：]*', '', summary).strip()
     
     return summary if summary else cleaned_text
 
