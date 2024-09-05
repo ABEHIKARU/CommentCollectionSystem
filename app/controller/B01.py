@@ -39,12 +39,16 @@ def show_b01():
     start_date_search = pd.to_datetime(start_date)
     df_reviews = scraping_reviews(app_id, end_date_search,start_date_search,keyword)
     
+    pd.set_option('display.max_rows', None)
+    pd.set_option('display.max_columns', None)
     pd.options.display.max_colwidth=5000
-    print(df_reviews)
     
     # ネガポジフィルタリング
     filtered_reviews = filter_reviews_by_sentiment(df_reviews, sentiment)
     filtered_reviews =process_reviews(filtered_reviews)
+    
+    print(filtered_reviews)
+    
     # データが存在する場合としない場合での分岐
     if not filtered_reviews.empty:
         return render_template('B01.html', appName=appName, start_date=start_date, end_date=end_date, sentiment=sentiment, keyword=keyword)
@@ -157,7 +161,7 @@ def scraping_reviews(app_id, end_date_search,start_date_search,keyword):
             # 次の21件がない場合、内側のループを抜け、外側のループの最初の処理に戻る
             elif df_S[i:j].shape[0]!=21:
                 break
-            continue     
+            break     
 
         # 日付形式の変更
         df_S['at'] = df_S['at'].dt.strftime('%Y/%m/%d %H:%M')
