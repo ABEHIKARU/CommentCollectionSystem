@@ -149,7 +149,8 @@ def scraping_reviews(app_id, end_date_search,start_date_search,keyword):
                     if df_S.empty:
                         i+=21
                         j+=21
-                        # 132行目に戻り、次の21件を確保する
+                        l=1
+                        # 次の21件を確保する
                         continue
                 # キーワード指定がない場合
                 else:
@@ -157,15 +158,25 @@ def scraping_reviews(app_id, end_date_search,start_date_search,keyword):
                 
                 i+=21
                 j+=21
+                l=1
                 
-            # 次の21件がない場合、内側のループを抜け、外側のループの最初の処理に戻る
+            # 次の21件がない場合
             elif df_S[i:j].shape[0]!=21:
-                break
-            break     
+                # 開始日がある場合、内側のループを抜け、外側のループも抜ける
+                if start_date_flag==True:
+                    loop_break_flag=True
+                    break
+                # 開始日がない場合、内側のループを抜け、外側のループの最初(1000件抽出)に戻る
+                else:
+                    loop_continue_flag=True
+                    break
+
+        if loop_break_flag==True:
+            break
+        elif loop_continue_flag==True:
+            continue            
 
         # 日付形式の変更
         df_S['at'] = df_S['at'].dt.strftime('%Y/%m/%d %H:%M')
                     
-        break
-    
     return df_S
