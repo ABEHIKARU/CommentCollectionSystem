@@ -86,8 +86,6 @@ def convert_sentiment_flag(flag):
 
 def scraping_reviews(app_id, end_date_search,start_date_search,keyword):
     """指定期間内のレビューを取得し、キーワードフィルタリングを行う"""
-    # 初期化
-    loop_break_flag = False
     # 変数の初期化
     df_M = pd.DataFrame()
     df_S = pd.DataFrame()
@@ -97,6 +95,8 @@ def scraping_reviews(app_id, end_date_search,start_date_search,keyword):
     while True:
         end_date_flag = False
         start_date_flag = False
+        loop_break_flag = False
+        loop_continue_flag = False
         
         # レビュー1000件抽出
         result, continuation_token = reviews(
@@ -163,6 +163,8 @@ def scraping_reviews(app_id, end_date_search,start_date_search,keyword):
                 j+=21
                 l=1
                 
+                # 
+                
             # 次の21件がない場合
             elif df_S[i:j].shape[0]!=21:
                 # 開始日がある場合、内側のループを抜け、外側のループも抜ける
@@ -177,9 +179,12 @@ def scraping_reviews(app_id, end_date_search,start_date_search,keyword):
         if loop_break_flag==True:
             break
         elif loop_continue_flag==True:
-            continue            
+            continue   
+        else:
+            break         
 
-        # 日付形式の変更
-        df_S['at'] = df_S['at'].dt.strftime('%Y/%m/%d %H:%M')
+    # 日付形式の変更
+    df_S['at'] = pd.to_datetime(df_S['at'])
+    df_S['at'] = df_S['at'].dt.strftime('%Y/%m/%d %H:%M')
                     
     return df_S
