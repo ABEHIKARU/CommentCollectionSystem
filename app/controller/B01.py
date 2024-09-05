@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, session
 from google_play_scraper import search, Sort, reviews
 import pandas as pd
 from controller.B02 import filter_reviews_by_sentiment  # B02からフィルタリング関数をインポート
+from controller.B03 import process_reviews
 
 b01_bp = Blueprint('b01_bp', __name__)
 
@@ -43,7 +44,7 @@ def show_b01():
     
     # ネガポジフィルタリング
     filtered_reviews = filter_reviews_by_sentiment(df_reviews, sentiment)
-
+    filtered_reviews =process_reviews(filtered_reviews)
     # データが存在する場合としない場合での分岐
     if not filtered_reviews.empty:
         return render_template('B01.html', appName=appName, start_date=start_date, end_date=end_date, sentiment=sentiment, keyword=keyword)
