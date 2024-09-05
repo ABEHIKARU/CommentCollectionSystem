@@ -43,6 +43,7 @@ def show_b01():
     pd.set_option('display.max_columns', None)
     pd.options.display.max_colwidth=5000
     print(df_reviews)
+    
     # ネガポジフィルタリング
     filtered_reviews = filter_reviews_by_sentiment(df_reviews, sentiment)
     filtered_reviews =process_reviews(filtered_reviews)
