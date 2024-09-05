@@ -1,16 +1,13 @@
 from flask import Blueprint
 import pandas as pd
-from transformers import XLMRobertaTokenizer, BartForConditionalGeneration
+from transformers import T5Tokenizer, T5ForConditionalGeneration
 
 # B03のBlueprintを作成（Flaskアプリケーションのモジュール化）
 b03_bp = Blueprint('b03_bp', __name__)
 
-# BARTモデルとトークナイザーをロード
-# 正しいトークナイザーを読み込む
-tokenizer = XLMRobertaTokenizer.from_pretrained('ku-nlp/bart-large-japanese')
-
-# モデルを読み込む
-model = BartForConditionalGeneration.from_pretrained('ku-nlp/bart-large-japanese')
+# T5モデルとトークナイザーをロード
+tokenizer = T5Tokenizer.from_pretrained('rinna/japanese-gpt2-small')
+model = T5ForConditionalGeneration.from_pretrained('rinna/japanese-gpt2-small')
 
 def summarize_and_soften(text):
     """
