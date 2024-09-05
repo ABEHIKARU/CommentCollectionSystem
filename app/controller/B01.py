@@ -38,7 +38,7 @@ def show_b01():
     start_date_search = pd.to_datetime(start_date)
     df_reviews = scraping_reviews(app_id, end_date_search,start_date_search,keyword)
     
-    pd.options.display.max_colwidth=10000
+    pd.options.display.max_colwidth=5000
     print(df_reviews)
     
     # ネガポジフィルタリング
