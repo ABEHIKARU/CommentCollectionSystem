@@ -66,9 +66,9 @@ def show_b01():
         filtered_reviews = pd.concat([filtered_reviews, filter_reviews_by_sentiment(df_21_reviews, sentiment)], ignore_index=True)
         print(filtered_reviews)
         
-    # # 要約翻訳
-    # filtered_reviews = process_reviews(filtered_reviews)
-    # print(filtered_reviews)    
+    # 要約翻訳
+    filtered_reviews = process_reviews(filtered_reviews)
+    print(filtered_reviews)    
     
     # データが存在する場合としない場合での分岐
     if not filtered_reviews.empty:
