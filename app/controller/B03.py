@@ -10,84 +10,67 @@ b03_bp = Blueprint('b03_bp', __name__)
 # T5トークナイザーとT5日本語モデルをロード
 tokenizer = T5Tokenizer.from_pretrained('sonoisa/t5-base-japanese')
 model = T5ForConditionalGeneration.from_pretrained('sonoisa/t5-base-japanese')
-
-def clean_text(text):
+def clean_summary(text):
     """
-    テキストの前処理を行う関数。無意味な文字列や空白、不要な記号を除去し、URLも削除する。
+    不要なフレーズや句読点の連続を削除し、クリーンな要約を返す関数
     """
-    # URLの削除
-    text = re.sub(r'http\S+|www\S+', '', text)  # URL削除
-    text = re.sub(r'[。\.]{2,}', '。', text)  # 「。。」や「...」の削除
-    text = re.sub(r'(\w)\1{2,}', r'\1', text)  # 繰り返される文字列の短縮
-    text = re.sub(r'[^\w\s\-、。！？一-龥ぁ-んァ-ヴ]', '', text)  # 不要な記号の削除
-    text = re.sub(r'[。、]{2,}', '。', text)  # 句読点の連続を一つに
-    text = text.strip()
+    # 不要なフレーズを削除
+    remove_phrases = [
+        'トラックバック一覧です', '(^_^;)', '(t_t)', 'oo:', ':>_<', '。。。。。', 
+        '、、、', '…。', '»(;_;)', 'mmarize:', 'summarize:', '«', '»', '...', '。。。'
+    ]
+    for phrase in remove_phrases:
+        text = text.replace(phrase, '')
 
-    # 空文字列や意味不明な場合は適切なメッセージを返す
-    if len(text) == 0:
-        return None
-    return text
+    # 連続するピリオドやカンマ、特殊文字を削除
+    text = re.sub(r'[。、]{2,}', '。', text)  # 句読点の連続を1つに
+    text = re.sub(r'[!！?？]{2,}', '', text)  # 繰り返しの感嘆符や疑問符を削除
+    text = re.sub(r'[\s]+', ' ', text)  # 不要な空白の連続を1つに
+    text = re.sub(r':+', '', text)  # コロンの連続を削除
 
-def clean_summary(summary):
-    """
-    生成された要約をクリーンアップして意味のある文章にする関数
-    """
-    # 文頭の不要な句読点や文頭の余分な空白を削除
-    summary = re.sub(r'^[。、！？\s]+', '', summary)  # 文頭の句読点やスペースを削除
-    summary = re.sub(r'[。 ]{2,}', '。', summary)  # 句読点の重複を削除
-    summary = re.sub(r'(\w)\1{2,}', r'\1', summary)  # 繰り返し文字を削除
-    summary = re.sub(r'([。、！？])\1+', r'\1', summary)  # 繰り返し句読点を削除
+    # 文頭が句読点や特殊記号の場合削除
+    text = re.sub(r'^[。、！？:\s]+', '', text)
 
-    # 不完全な文章（最後が句読点だけなど）を削除
-    if len(re.sub(r'[。、！？]', '', summary)) == 0:
-        return "要約できませんでした。"
+    # 文末に不必要な句読点が連続している場合を削除
+    text = re.sub(r'[。！？:\s]+$', '', text)
 
-    return summary
+    # 重複する単語や不自然な繰り返しを削除
+    text = re.sub(r'(.)\1{2,}', r'\1', text)  # 同じ文字の連続を1つに
+    text = re.sub(r'(最低){2,}', '最低', text)  # "最低"の繰り返しを1回に
+
+    return text.strip()
 
 def summarize_with_t5(text):
     """
-    T5モデルを使用して要約を行う関数。原文が短すぎる場合や無意味な場合は要約せず、そのまま返す。
+    T5モデルを使用して要約を行う関数
     """
-    # 原文が10文字以下の場合や無意味な内容の場合はスキップ
-    if len(text) <= 10:
-        return "要約できる内容がありません。"
+    input_text = "summarize: " + text
 
-    cleaned_text = clean_text(text)
+    # トークナイズ
+    inputs = tokenizer.encode(input_text, return_tensors="pt", max_length=512, truncation=True)
 
-    # クリーンアップ後のテキストが短すぎる場合は要約しない
-    if not cleaned_text or len(cleaned_text) <= 10:
-        return "要約できる内容がありません。"
-
-    # T5モデルで要約するためのプロンプトを作成（生成時に「簡潔に要約してください」を削除するために変更）
-    input_text = f"要約: {cleaned_text}"
-
-    # トークナイズの際、長すぎる文を切り捨てずに扱う
-    inputs = tokenizer(input_text, return_tensors="pt", max_length=512, truncation=True)
-
-    # T5モデルで要約生成を実行
+    # 要約生成
     summary_ids = model.generate(
-        inputs.input_ids,
-        max_length=50,    # 要約の最大長さ
-        min_length=20,    # 要約の最小長さ
-        num_beams=5,      # ビームサーチの探索幅
-        no_repeat_ngram_size=3,  # 繰り返し防止
-        early_stopping=True,
-        repetition_penalty=3.5,  # 繰り返しの抑制を強化
-        temperature=0.7,  # 生成の多様性を適度に増やす
-        do_sample=False   # サンプリングをオフにして安定した結果を得る
+        inputs,
+        max_length=130,
+        min_length=50,  # 最小長さを50に設定して文脈を確保
+        length_penalty=1.2,
+        num_beams=8,
+        no_repeat_ngram_size=3,
+        repetition_penalty=1.8,
+        early_stopping=True
     )
-
-    # 生成された要約をデコード
+    
+    # 要約結果をデコード
     summary = tokenizer.decode(summary_ids[0], skip_special_tokens=True)
-
-    # クリーンアップを強化して、意味の通じる文章に
+    
+    # 要約をクリーンアップ
     return clean_summary(summary)
-
 
 def process_reviews(filtered_reviews):
     """
-    フィルタリングされたレビューに対して、T5を使用して要約を行う関数。
+    フィルタリングされたレビューに対して、T5を使用して要約を行う関数
     """
-    # applyメソッドで各レビューに対して要約を実施
     filtered_reviews['summary'] = filtered_reviews['content'].apply(summarize_with_t5)
     return filtered_reviews
+
