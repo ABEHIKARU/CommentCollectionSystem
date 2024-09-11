@@ -40,7 +40,12 @@ def clean_summary(text):
     text = re.sub(r'(最低){2,}', '最低', text)  # "最低"の繰り返しを1回に
     text = re.sub(r'[\uFF65-\uFF9F\u3000]', '', text)  # 特殊文字（半角カタカナや全角スペース）を削除
 
+    # 文頭と文末の不要な"を削除
+    text = re.sub(r'^["\']+', '', text)  # 文頭の"や'を削除
+    text = re.sub(r'["\']+$', '', text)  # 文末の"や'を削除
+
     return text.strip()
+
 
 def split_text_into_chunks(text, max_length=512):
     """
