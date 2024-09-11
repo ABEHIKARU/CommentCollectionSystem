@@ -54,5 +54,28 @@
         
     </div>   
 
+    <!-- FlaskからJavaScriptにデータを渡す -->
+    <script>
+    // JSONデータをそのまま受け取る（文字列として）
+    const reviewsJson = `{{ reviews|safe }}`;
+
+    try {
+        // JSON文字列をオブジェクトに変換
+        const reviews = JSON.parse(reviewsJson);
+
+        // レビューが正常に受け取れたことを確認するためのダイアログ表示
+        if (reviews.length > 0) {
+            alert('レビューを受け取りました: ' + reviews.length + '件');
+        } else {
+            alert('レビューがありません。');
+        }
+
+        // デバッグ用にコンソールに出力
+        console.log(reviews);
+    } catch (error) {
+        console.error('JSON parsing error:', error);
+    }
+    </script>
+
 </body>
 </html>
