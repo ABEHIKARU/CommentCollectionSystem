@@ -1,7 +1,3 @@
-
-
-
-
 // データベースを開く関数
 function openDatabase() {
     return new Promise((resolve, reject) => {

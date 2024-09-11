@@ -5,12 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>一覧画面</title>
     <link rel=stylesheet href="{{ url_for('static', filename='css/B01.css') }}">
-    <!-- <script>
-        // JSONデータをそのまま受け取る（文字列として）      
-        const reviewsJson = `{{ reviews|safe }}`;
-        const reviews = JSON.parse(reviewsJson);
-    </script>  -->
-    <!-- <script type=text/javascript src="{{ url_for('static', filename='js/B01.js') }}"></script> -->
+    <script> const reviews = `{{ reviews|safe }}`; </script>
+    <script type=text/javascript src="{{ url_for('static', filename='js/B01.js') }}"></script>
 </head>
 
 
@@ -80,12 +76,11 @@
         //     console.error('JSON parsing error:', error);
         // }
     </script> -->
-    <script>
+    <!-- <script>
         // サーバーから埋め込まれたJSONデータをパースする
-        const reviewsJson = `{{ reviews|safe }}`;
-        const reviews = '{{ user_name }}';
+        const reviews = `{{ reviews|safe }}`;
         // const reviews = JSON.parse(reviewsJson);  // 正しい形式でJSONをパース
     </script>
-    <script src="{{ url_for('static', filename='js/B01.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/B01.js') }}"></script> -->
 </body>
 </html>
