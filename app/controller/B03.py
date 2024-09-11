@@ -18,7 +18,7 @@ def clean_summary(text):
     # 不要なフレーズを削除
     remove_phrases = [
         'トラックバック一覧です', '(^_^;)', '(t_t)', 'oo:', ':>_<', '。。。。。', 
-        '、、、', '…。', '»(;_;)', 'mmarize:', 'summarize:', '«', '»', '...', '。。。', 'marize'
+        '、、、', '…。','"','\\"', '»(;_;)', 'mmarize:', 'summarize:', '«', '»', '...', '。。。', 'marize'
     ]
     for phrase in remove_phrases:
         text = text.replace(phrase, '')
