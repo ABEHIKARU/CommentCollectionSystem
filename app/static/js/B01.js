@@ -42,7 +42,12 @@ function saveDataToIndexedDB(db, data) {
         };
 
         transaction.onerror = (event) => {
-            reject(`Transaction error: ${event.target.errorCode}`);
+            const errorMessage = `DBにデータを追加できませんでした。`;
+            
+            // エラーメッセージを表示する関数を呼び出し
+            displayErrorMessage(errorMessage);
+        
+            reject(errorMessage);
         };
     });
 }
@@ -95,3 +100,14 @@ openDatabase()
             .catch(error => console.error(error));
     })
     .catch(error => console.error("Database error:", error));
+    
+function displayErrorMessage(message) {
+    // エラーメッセージを表示するHTML要素を取得
+    const errorMessageDiv = document.getElementById('errorMessage');
+
+    // エラーメッセージを設定
+    errorMessageDiv.textContent = message;
+
+    // エラーメッセージを赤色に
+    errorMessageDiv.style.color = 'red';
+}
