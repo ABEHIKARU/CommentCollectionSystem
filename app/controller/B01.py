@@ -187,3 +187,6 @@ def filterling_keyword(df_21_reviews,keyword):
     df_21_reviews = df_21_reviews[df_21_reviews['content'].str.contains(keyword, case=False, na=False)]
         
     return df_21_reviews
+
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# イベント処理
