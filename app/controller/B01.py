@@ -36,18 +36,17 @@ def show_b01():
 
     filtered_reviews=pd.DataFrame() # ネガポジ判断後のdfを初期化
     continuation_token=None # 継続トークンの初期化
-    start=0 # 21件確保の始点
-    end=21 # 21件確保の終点
-
     pd.set_option('display.max_rows', None) # pandasの行をターミナルに全て表示
     
     # レビュー1000件抽出
     df_scraping_reviews,continuation_token1,start_date_flag = scraping_reviews(app_id, end_date,start_date,continuation_token)
+    
+    start=0 # 21件確保の始点
+    end=21 # 21件確保の終点
         
     while len(filtered_reviews)<21:
         # レビュー21件確保
         df_21_reviews,start,end,continuation_token1=secured_21_reviews(df_scraping_reviews,continuation_token1,start,end,start_date_flag)
-        print(df_21_reviews)
         
         # レビュー21件確保できない場合
         if df_21_reviews.empty:
@@ -56,7 +55,6 @@ def show_b01():
         # キーワード指定
         if keyword != 'なし':
             df_21_reviews=filterling_keyword(df_21_reviews,keyword)
-            print(df_21_reviews)
             
         # キーワードフィルタリングの結果、0件になった場合
         if df_21_reviews.empty:
@@ -64,15 +62,17 @@ def show_b01():
         
         # ネガポジフィルタリング
         filtered_reviews = pd.concat([filtered_reviews, filter_reviews_by_sentiment(df_21_reviews, sentiment)], ignore_index=True)
-        print(filtered_reviews)
         
     # 要約翻訳
     filtered_reviews = process_reviews(filtered_reviews)
-    print(filtered_reviews)    
+    print(filtered_reviews)   
+    
+    # json変換
+    df_all=filtered_reviews.to_json(force_ascii=False,orient='records')
     
     # データが存在する場合としない場合での分岐
     if not filtered_reviews.empty:
-        return render_template('B01.html', appName=appName, start_date=start_date, end_date=end_date, sentiment=sentiment, keyword=keyword)
+        return render_template('B01.html', appName=appName, start_date=start_date, end_date=end_date, sentiment=sentiment, keyword=keyword,reviews=df_all)
     else:
         errorMessage_list = "条件に一致するレビューが見つかりませんでした"
         return render_template('B01.html', errorMessage_list=errorMessage_list)
@@ -171,7 +171,7 @@ def secured_21_reviews(df_scraping_reviews,continuation_token1,start,end,start_d
         scraping_reviews(continuation_token1)
         
     # 次の21件がある場合
-    else:
+    else: # TODO:ifにして、レビュー1000件抽出後にまたここに来れるようにする
         # 21件を別のdfに継ぎ足す
         df_S=pd.concat([df_S,df_scraping_reviews[start:end]],ignore_index=True)
         start+=21
