@@ -72,6 +72,7 @@ def show_b01():
     # json変換
     df_all=filtered_reviews.to_json(force_ascii=False,orient='records')
     print(df_all) 
+    
     # データが存在する場合
     if not filtered_reviews.empty:
         return render_template('B01.html', appName=appName, start_date=start_date, end_date=end_date, sentiment=sentiment, keyword=keyword,reviews=df_all)
