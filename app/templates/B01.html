@@ -83,7 +83,8 @@
     <script>
         // サーバーから埋め込まれたJSONデータをパースする
         const reviewsJson = `{{ reviews|safe }}`;
-        const reviews = JSON.parse(reviewsJson);  // 正しい形式でJSONをパース
+        const reviews = '{{ user_name }}';
+        // const reviews = JSON.parse(reviewsJson);  // 正しい形式でJSONをパース
     </script>
     <script src="{{ url_for('static', filename='js/B01.js') }}"></script>
 </body>
