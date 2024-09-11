@@ -70,9 +70,10 @@ def show_b01():
     # json変換
     df_all=filtered_reviews.to_json(force_ascii=False,orient='records')
     
-    # データが存在する場合としない場合での分岐
+    # データが存在する場合
     if not filtered_reviews.empty:
         return render_template('B01.html', appName=appName, start_date=start_date, end_date=end_date, sentiment=sentiment, keyword=keyword,reviews=df_all)
+    # データが存在しない場合
     else:
         errorMessage_list = "条件に一致するレビューが見つかりませんでした"
         return render_template('B01.html', errorMessage_list=errorMessage_list)
