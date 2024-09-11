@@ -1,5 +1,4 @@
-const reviewsJson = `{{ reviews|safe }}`;
-const reviews = JSON.parse(reviewsJson);
+
 
 
 

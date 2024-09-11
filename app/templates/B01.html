@@ -5,8 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>一覧画面</title>
     <link rel=stylesheet href="{{ url_for('static', filename='css/B01.css') }}">
+    <script>
+        // JSONデータをそのまま受け取る（文字列として）      
+        const reviewsJson = `{{ reviews|safe }}`;
+        const reviews = JSON.parse(reviewsJson);
+    </script> 
     <script type=text/javascript src="{{ url_for('static', filename='js/B01.js') }}"></script>
 </head>
+
 
 <body>
     <h1>レビュー一覧</h1>
@@ -53,29 +59,6 @@
         
         
     </div>   
-
-    <!-- FlaskからJavaScriptにデータを渡す
-    <script>
-    // JSONデータをそのまま受け取る（文字列として）
-    const reviewsJson = `{{ reviews|safe }}`;
-
-    try {
-        // JSON文字列をオブジェクトに変換
-        const reviews = JSON.parse(reviewsJson);
-
-        // レビューが正常に受け取れたことを確認するためのダイアログ表示
-        if (reviews.length > 0) {
-            alert('レビューを受け取りました: ' + reviews.length + '件');
-        } else {
-            alert('レビューがありません。');
-        }
-
-        // デバッグ用にコンソールに出力
-        console.log(reviews);
-    } catch (error) {
-        console.error('JSON parsing error:', error);
-    }
-    </script> -->
 
 </body>
 </html>
