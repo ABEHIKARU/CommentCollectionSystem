@@ -61,7 +61,7 @@
     <!-- FlaskからJavaScriptにデータを渡す -->
     <script>
         // JSONデータをそのまま受け取る（文字列として）
-        const reviewsJson = `{{ reviews|safe }}`;
+        const reviewsJson = `{{ reviews|tojson }}`;
 
         try {
             // JSON文字列をオブジェクトに変換
