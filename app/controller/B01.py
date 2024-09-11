@@ -37,7 +37,8 @@ def show_b01():
     filtered_reviews=pd.DataFrame() # ネガポジ判断後のdfを初期化
     continuation_token=None # 継続トークンの初期化
     pd.set_option('display.max_rows', None) # pandasの行をターミナルに全て表示
-    
+    pd.set_option('display.max_columns', None)
+    pd.options.display.max_colwidth=10000
     # レビュー1000件抽出
     df_scraping_reviews,continuation_token1,start_date_flag = scraping_reviews(app_id, end_date,start_date,continuation_token)
     
@@ -69,7 +70,7 @@ def show_b01():
     
     # json変換
     df_all=filtered_reviews.to_json(force_ascii=False,orient='records')
-    
+    print(df_all) 
     # データが存在する場合
     if not filtered_reviews.empty:
         return render_template('B01.html', appName=appName, start_date=start_date, end_date=end_date, sentiment=sentiment, keyword=keyword,reviews=df_all)
