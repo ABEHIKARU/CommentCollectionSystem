@@ -1,3 +1,8 @@
+const reviewsJson = `{{ reviews|safe }}`;
+const reviews = JSON.parse(reviewsJson);
+
+
+
 // データベースを開く関数
 function openDatabase() {
     return new Promise((resolve, reject) => {
@@ -75,13 +80,8 @@ function getAllDataFromIndexedDB(db) {
     });
 }
 
-// サンプルのレビューデータ
-const reviews = [
-    { at: "2024-08-23", sentiment: "positive", summary: "Highly recommended", content: "Great product!" },
-    { at: "2024-08-24", sentiment: "negative", summary: "Not as expected", content: "Disappointed with the quality." }
-];
 
-// IndexedDBにレビューを保存し、その後すべてのデータを読み込んで表示
+// IndexedDBにレビューを保存し、その後すべてのデータを読み込んで console.logに表示
 openDatabase()
     .then(db => {
         // すべてのレビューを保存
