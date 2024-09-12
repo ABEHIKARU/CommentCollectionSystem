@@ -25,11 +25,11 @@ def judge_sentiment(text):
     
     # 結果ラベルに基づいて、ポジティブかネガティブかニュートラルを返す
     if sentiment == 'POSITIVE':
-        return "ポジティブ"
+        return "+"
     elif sentiment == 'NEGATIVE':
-        return "ネガティブ"
+        return "-"
     elif sentiment == 'NEUTRAL':
-        return "ニュートラル"  
+        return "~"  
     else:
         return "unknown"  # ラベルが不明な場合（通常は発生しないが保険として）
 
@@ -48,10 +48,10 @@ def filter_reviews_by_sentiment(df_reviews, sentiment):
         filtered_df = df_reviews
     elif sentiment == "ポジティブ":
         # ポジティブなレビューのみを保持
-        filtered_df = df_reviews[df_reviews['sentiment'] == "ポジティブ"]
+        filtered_df = df_reviews[df_reviews['sentiment'] == "+"]
     elif sentiment == "ネガティブ":
         # ネガティブなレビューのみを保持
-        filtered_df = df_reviews[df_reviews['sentiment'] == "ネガティブ"]
+        filtered_df = df_reviews[df_reviews['sentiment'] == "-"]
     else:
         # 指定された感情が存在しない場合、空のデータフレームを返す
         filtered_df = pd.DataFrame(columns=df_reviews.columns)
