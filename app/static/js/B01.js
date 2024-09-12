@@ -113,15 +113,14 @@ function displayErrorMessage(message) {
 }
 
 
-
 // IndexedDBから20件データを取得して表示する関数
 function displayReviews() {
-    openDatabase()
+    openDatabase()  // IndexedDBデータベースを開く
         .then(db => {
-            getAllDataFromIndexedDB(db)
+            getAllDataFromIndexedDB(db)  // データベースからすべてのデータを取得
                 .then(data => {
-                    const reviewTable = document.querySelector('#review-table tbody'); // 表の要素を取得
-                    let displayCount = Math.min(data.length, 20); // 20件以上なら20件まで表示
+                    const reviewTable = document.querySelector('#review-table tbody'); // 表のtbody要素を取得
+                    let displayCount = Math.min(data.length, 20); // 20件以上なら20件まで表示、20件未満なら全件表示
 
                     // データが存在するかチェック
                     if (displayCount > 0) {
@@ -129,26 +128,27 @@ function displayReviews() {
                         data.slice(0, displayCount).forEach((review, index) => {
                             const row = reviewTable.insertRow(); // 新しい行を作成
                             
+                            // 各セルを作成してデータを挿入
+                            let cellNo = row.insertCell(0);    
+                            let cellDate = row.insertCell(1);    
+                            let cellSentiment = row.insertCell(2); 
+                            let cellSummary = row.insertCell(3);   
+                            let cellOriginal = row.insertCell(4);  
 
-                            let cellNo = row.insertCell(0);
-                            let cellDate = row.insertCell(1);
-                            let cellSentiment = row.insertCell(2);
-                            let cellSummary = row.insertCell(3);
-                            let cellOriginal = row.insertCell(4);
-
-                            cellNo.textContent = index + 1;
-                            cellDate.textContent = review.date; // 直接dateフィールドを使用
-                            cellSentiment.textContent = review.sentiment;
-                            cellSummary.textContent = review.summary;
-                            cellOriginal.textContent = review.original; // 直接originalフィールドを使用
+                            // 各セルに対応するデータをセット
+                            cellNo.textContent = index + 1;           // レビューの番号を設定
+                            cellDate.textContent = review.date;        // 投稿日時（dateフィールド）を表示
+                            cellSentiment.textContent = review.sentiment; // + / - の評価を表示
+                            cellSummary.textContent = review.summary;   // 要約（summaryフィールド）を表示
+                            cellOriginal.textContent = review.original; // 原文（originalフィールド）を表示
                         });
                     } else {
                         // データが無い場合はメッセージ表示
-                        const errorMessageDiv = document.getElementById('errorMessage');
-                        errorMessageDiv.textContent = '表示するレビューがありません。';
+                        const errorMessageDiv = document.getElementById('errorMessage');  // エラーメッセージ表示用のdivを取得
+                        errorMessageDiv.textContent = '表示するレビューがありません。';  // エラーメッセージを設定
                     }
                 })
-                .catch(error => console.error("データ取得エラー: ", error));
+                .catch(error => console.error("データ取得エラー: ", error));  // データ取得エラー時の処理
         })
-        .catch(error => console.error("Database error:", error));
+        .catch(error => console.error("Database error:", error));  // データベースエラー時の処理
 }
