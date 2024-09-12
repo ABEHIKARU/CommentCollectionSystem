@@ -14,4 +14,24 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     endDateInput.setAttribute('min', startDateInput.value);
+
+    // IndexedDBを全てクリアする関数
+    function clearIndexedDB() {
+        const request = indexedDB.deleteDatabase("TranslationAnalysisDB");
+
+        request.onsuccess = function () {
+            console.log("IndexedDBが正常に削除されました");
+        };
+
+        request.onerror = function (event) {
+            console.error("IndexedDBの削除に失敗しました:", event.target.errorCode);
+        };
+
+        request.onblocked = function () {
+            console.warn("IndexedDBの削除がブロックされました。");
+        };
+    }
+
+    // ページが読み込まれたときにIndexedDBをクリア
+    clearIndexedDB();
 });
