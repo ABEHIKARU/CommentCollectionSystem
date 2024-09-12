@@ -111,3 +111,44 @@ function displayErrorMessage(message) {
     // エラーメッセージを赤色に
     errorMessageDiv.style.color = 'red';
 }
+
+
+
+// IndexedDBから20件データを取得して表示する関数
+function displayReviews() {
+    openDatabase()
+        .then(db => {
+            getAllDataFromIndexedDB(db)
+                .then(data => {
+                    const reviewTable = document.querySelector('#review-table tbody'); // 表の要素を取得
+                    let displayCount = Math.min(data.length, 20); // 20件以上なら20件まで表示
+
+                    // データが存在するかチェック
+                    if (displayCount > 0) {
+                        // 既存の表にデータを追加
+                        data.slice(0, displayCount).forEach((review, index) => {
+                            const row = reviewTable.insertRow(); // 新しい行を作成
+                            
+
+                            let cellNo = row.insertCell(0);
+                            let cellDate = row.insertCell(1);
+                            let cellSentiment = row.insertCell(2);
+                            let cellSummary = row.insertCell(3);
+                            let cellOriginal = row.insertCell(4);
+
+                            cellNo.textContent = index + 1;
+                            cellDate.textContent = review.date; // 直接dateフィールドを使用
+                            cellSentiment.textContent = review.sentiment;
+                            cellSummary.textContent = review.summary;
+                            cellOriginal.textContent = review.original; // 直接originalフィールドを使用
+                        });
+                    } else {
+                        // データが無い場合はメッセージ表示
+                        const errorMessageDiv = document.getElementById('errorMessage');
+                        errorMessageDiv.textContent = '表示するレビューがありません。';
+                    }
+                })
+                .catch(error => console.error("データ取得エラー: ", error));
+        })
+        .catch(error => console.error("Database error:", error));
+}

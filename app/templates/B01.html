@@ -4,19 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>一覧画面</title>
-    <link rel=stylesheet href="{{ url_for('static', filename='css/B01.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/B01.css') }}">
     <script>
-            const reviewsJson = `{{ reviews|safe  }}`; 
-            const reviews = JSON.parse(reviewsJson); 
+        const reviewsJson = `{{ reviews|safe  }}`;
+        const reviews = JSON.parse(reviewsJson);
     </script>
-    <script type=text/javascript src="{{ url_for('static', filename='js/B01.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/B01.js') }}"></script>
 </head>
-
 
 <body>
     <h1>レビュー一覧</h1>
+
+    <!-- アプリ情報のテーブル -->
     <div>
-        <table>
+        <table id="app-info-table">
             <tr>
                 <td>アプリ名：</td>
                 <td>{{appName}}</td>
@@ -34,29 +35,41 @@
                 <td>{{keyword}}</td>
             </tr>
         </table>
-        
-    <form method="post" action="/B01">
-
-        <table border="1">
-            <th>No.</th>
-            <th>投稿日時</th>
-            <th>+/-</th>
-            <th>要約</th>
-            <th>原文</th>
+    </div>
+    
+    <!-- レビュー表示用のテーブル -->
+    <div>
+        <table id="review-table" border="1" style="border-collapse: collapse">
+            <thead>
+                <tr>
+                    <th>No.</th>
+                    <th>投稿日時</th>
+                    <th>+/-</th>
+                    <th>要約</th>
+                    <th>原文</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- レビュー内容はJavaScriptによってここに挿入されます -->
+            </tbody>
         </table>
+    </div>
 
-        {% if errorMessage_list %}
-            <p>{{errorMessage_list}}</p>
-        {% endif %}
+    <!-- エラーメッセージを表示するための空のdiv -->
+    <div id="errorMessage"></div>
 
-        <!-- エラーメッセージ（DB用）を表示するための空のdiv -->
-        <div id="errorMessage"></div>
-
+    <!-- フォーム部分 -->
+    <form method="post" action="/B01">
         <input type="submit" value="前へ" name="backpageButton">
         <span>ページ目</span>
         <input type="submit" value="次へ" name="nextpageButton">
     </form>
-    </div> 
     
+    <!-- ページ読み込み時にレビューを表示 -->
+    <script>
+        window.onload = function() {
+            displayReviews();
+        };
+    </script>
 </body>
 </html>
