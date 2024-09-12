@@ -35,3 +35,9 @@ document.addEventListener("DOMContentLoaded", function () {
     // ページが読み込まれたときにIndexedDBをクリア
     clearIndexedDB();
 });
+
+var onBeforeunloadHandler = function(e) {
+    e.preventDefault();
+    e.returnValue = '';
+};
+window.addEventListener('beforeunload', onBeforeunloadHandler, false); 
