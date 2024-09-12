@@ -39,7 +39,7 @@ def review_search():
         if not start_date or not end_date:
            flash("期間を指定してください")
            return redirect(url_for('a01_bp.review_search'))
-       
+
         # ポジティブ・ネガティブ選択チェック
         if not positive_opinion and not negative_opinion:
            flash("種別を選択してください")
@@ -73,14 +73,20 @@ def review_search():
             flash("データ送信に失敗しました")
             return redirect(url_for('a01_bp.review_search'))
 
- 
-        # 正常な場合、B01.htmlへリダイレクト
+
+        # 正常な場合、B01.pyへリダイレクト
         return redirect(url_for('b01_bp.show_b01'))
 
     # GETリクエスト時またはエラー時のメッセージ表示
     
     return render_template('A01.html')
 
-
+@a01_bp.route('/A01_clear_session_and_redirect', methods=['POST'])
+def clear_session_and_redirect():
+    # セッションをクリア
+    session.clear()
+    
+    # 検索画面にリダイレクト
+    return render_template('A01.html')
 
 
