@@ -153,7 +153,24 @@ function displayReviews() {
         .catch(error => console.error("Database error:", error));  // データベースエラー時の処理
 }
 
+// ページが読み込まれたときにタイトルにフォーカスを設定する関数
+function focusTitle() {
+    const titleElement = document.getElementById('title');
+    if (titleElement) {
+        titleElement.focus();
+        // 自動的にクリックイベントを発火させる
+        const clickEvent = new MouseEvent('click', {
+            bubbles: true,
+            cancelable: true,
+            view: window
+        });
+        titleElement.dispatchEvent(clickEvent);
+    }
+}
+
 document.addEventListener("DOMContentLoaded", function () {
+    focusTitle();
+
     // beforeunload イベントリスナー
     var onBeforeunloadHandler = function(e) {
         e.preventDefault();
@@ -170,4 +187,5 @@ document.addEventListener("DOMContentLoaded", function () {
             window.removeEventListener("beforeunload", onBeforeunloadHandler);
         });
     });
+
 });
