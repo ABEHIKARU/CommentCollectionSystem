@@ -7,7 +7,7 @@ from controller.B03 import process_reviews
 b01_bp = Blueprint('b01_bp', __name__)
 
 # メイン処理
-@b01_bp.route('/B01')
+@b01_bp.route('/B01', methods=['POST'])
 def show_b01():
     # 必要なセッションキー
     session_keys = ['app_id', 'start_date', 'end_date', 'flag']

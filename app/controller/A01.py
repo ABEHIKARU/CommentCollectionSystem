@@ -1,6 +1,5 @@
 from flask import Flask,Blueprint, render_template, request, redirect, url_for, flash, session
 import re
-import secrets
 
 # Blueprintを作成
 a01_bp = Blueprint('a01_bp', __name__)
@@ -37,13 +36,13 @@ def review_search():
         
         # 期間の入力チェック
         if not start_date or not end_date:
-           flash("期間を指定してください")
-           return redirect(url_for('a01_bp.review_search'))
+            flash("期間を指定してください")
+            return redirect(url_for('a01_bp.review_search'))
 
         # ポジティブ・ネガティブ選択チェック
         if not positive_opinion and not negative_opinion:
-           flash("種別を選択してください")
-           return redirect(url_for('a01_bp.review_search'))
+            flash("種別を選択してください")
+            return redirect(url_for('a01_bp.review_search'))
         
         # ネガポジ種別フラグの設定
         if positive_opinion and negative_opinion:
@@ -55,8 +54,8 @@ def review_search():
             
         # キーワードの入力チェック
         if len(keyword) > 30:
-           flash("キーワードを正しく入力してください")
-           return redirect(url_for('a01_bp.review_search'))
+            flash("キーワードを正しく入力してください")
+            return redirect(url_for('a01_bp.review_search'))
         elif keyword == "":
             keyword = None
 
