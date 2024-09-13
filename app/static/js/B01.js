@@ -142,13 +142,13 @@ function displayReviews() {
                             cellSummary.textContent = review.summary;   // 要約（summaryフィールド）を表示
                             cellOriginal.textContent = review.original; // 原文（originalフィールド）を表示
 
-                            // 種別セルの色を条件に応じて設定
+                            // 種別セルの背景色を条件に応じて設定（RGBAで透明度を加える）
                             if (review.sentiment === '+') {
-                                cellSentiment.style.color = 'blue'; // 種別が「+」の場合は青
+                                cellSentiment.style.backgroundColor = 'rgba(0, 0, 255, 0.2)'; // 薄い青
                             } else if (review.sentiment === '-') {
-                                cellSentiment.style.color = 'red';  // 種別が「-」の場合は赤
+                                cellSentiment.style.backgroundColor = 'rgba(255, 0, 0, 0.2)'; // 薄い赤
                             } else if (review.sentiment === '~') {
-                                cellSentiment.style.color = 'green'; // 種別が「~」の場合は緑
+                                cellSentiment.style.backgroundColor = 'rgba(0, 255, 0, 0.2)'; // 薄い緑
                             }
                         });
                     } else {
@@ -161,6 +161,7 @@ function displayReviews() {
         })
         .catch(error => console.error("Database error:", error));  // データベースエラー時の処理
 }
+
 
 
 document.addEventListener("DOMContentLoaded", function () {

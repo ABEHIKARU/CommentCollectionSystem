@@ -53,8 +53,12 @@
                 <!-- レビュー内容はJavaScriptによってここに挿入されます -->
             </tbody>
         </table>
-    </div>
 
+        {% if errorMessage_list %}
+            <p>{{errorMessage_list}}</p>
+        {% endif %}
+    </div>
+ 
     <!-- エラーメッセージを表示するための空のdiv -->
     <div id="errorMessage"></div>
 
