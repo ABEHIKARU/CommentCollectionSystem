@@ -152,3 +152,22 @@ function displayReviews() {
         })
         .catch(error => console.error("Database error:", error));  // データベースエラー時の処理
 }
+
+document.addEventListener("DOMContentLoaded", function () {
+    // beforeunload イベントリスナー
+    var onBeforeunloadHandler = function(e) {
+        e.preventDefault();
+        e.returnValue = '';
+    };
+
+    // beforeunload イベントを追加
+    window.addEventListener('beforeunload', onBeforeunloadHandler, false);
+
+    const formBtns = document.querySelectorAll(".backpageButton,.nextpageButton,#backToSearchSubmit");
+
+    formBtns.forEach(function (formBtn) {
+        formBtn.addEventListener("click", () => {
+            window.removeEventListener("beforeunload", onBeforeunloadHandler);
+        });
+    });
+});
