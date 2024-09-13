@@ -1,4 +1,4 @@
-from flask import Flask,Blueprint, render_template, request, redirect, url_for, flash, session
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 import re
 
 # Blueprintを作成
@@ -6,7 +6,7 @@ a01_bp = Blueprint('a01_bp', __name__)
 
 @a01_bp.route('/')
 def index():
-    # セッションをクリア
+    # A01.html読み込み時、セッションクリア
     session.clear()
     return render_template('A01.html')
 
