@@ -141,6 +141,15 @@ function displayReviews() {
                             cellSentiment.textContent = review.sentiment; // + / - の評価を表示
                             cellSummary.textContent = review.summary;   // 要約（summaryフィールド）を表示
                             cellOriginal.textContent = review.original; // 原文（originalフィールド）を表示
+
+                            // 種別セルの色を条件に応じて設定
+                            if (review.sentiment === '+') {
+                                cellSentiment.style.color = 'blue'; // 種別が「+」の場合は青
+                            } else if (review.sentiment === '-') {
+                                cellSentiment.style.color = 'red';  // 種別が「-」の場合は赤
+                            } else if (review.sentiment === '~') {
+                                cellSentiment.style.color = 'green'; // 種別が「~」の場合は緑
+                            }
                         });
                     } else {
                         // データが無い場合はメッセージ表示
@@ -152,6 +161,7 @@ function displayReviews() {
         })
         .catch(error => console.error("Database error:", error));  // データベースエラー時の処理
 }
+
 
 document.addEventListener("DOMContentLoaded", function () {
     // beforeunload イベントリスナー
