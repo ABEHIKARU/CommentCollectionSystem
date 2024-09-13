@@ -87,5 +87,3 @@ def clear_session_and_redirect():
     
     # 検索画面にリダイレクト
     return render_template('A01.html')
-
-
