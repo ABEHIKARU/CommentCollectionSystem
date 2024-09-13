@@ -192,4 +192,4 @@ def filterling_keyword(df_21_reviews,keyword):
 # イベント処理
 @b01_bp.route('/B01_event')
 def show_b01_event():
-    
+    print
