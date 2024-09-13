@@ -162,9 +162,7 @@ function displayReviews() {
         .catch(error => console.error("Database error:", error));  // データベースエラー時の処理
 }
 
-<<<<<<< HEAD
 
-=======
 // ページが読み込まれたときにタイトルにフォーカスを設定する関数
 function focusTitle() {
     const titleElement = document.getElementById('title');
@@ -179,7 +177,6 @@ function focusTitle() {
         titleElement.dispatchEvent(clickEvent);
     }
 }
->>>>>>> 36d7417620d783445571cb12e8e238d24fd931f8
 
 document.addEventListener("DOMContentLoaded", function () {
     focusTitle();
