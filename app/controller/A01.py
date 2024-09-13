@@ -4,10 +4,10 @@ import re
 # Blueprintを作成
 a01_bp = Blueprint('a01_bp', __name__)
 
-
-
 @a01_bp.route('/')
 def index():
+    # セッションをクリア
+    session.clear()
     return render_template('A01.html')
 
 @a01_bp.route('/A01', methods=['GET', 'POST'])
