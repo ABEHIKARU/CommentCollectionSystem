@@ -34,10 +34,19 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // ページが読み込まれたときにIndexedDBをクリア
     clearIndexedDB();
-});
 
-var onBeforeunloadHandler = function(e) {
-    e.preventDefault();
-    e.returnValue = '';
-};
-window.addEventListener('beforeunload', onBeforeunloadHandler, false); 
+    // // beforeunload イベントリスナー
+    // var onBeforeunloadHandler = function(e) {
+    //     e.preventDefault();
+    //     e.returnValue = '';
+    // };
+
+    // // beforeunload イベントを追加
+    // window.addEventListener('beforeunload', onBeforeunloadHandler, false); 
+
+    // // フォーム送信時に beforeunload イベントを無効化
+    // form.addEventListener('submit', function () {
+    //     // レビュー検索ボタンを押した際は beforeunload イベントリスナーを解除
+    //     window.removeEventListener('beforeunload', onBeforeunloadHandler, false);
+    // });
+});
