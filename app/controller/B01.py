@@ -6,7 +6,7 @@ from controller.B03 import process_reviews
 
 b01_bp = Blueprint('b01_bp', __name__)
 
-# メイン処理
+# 検索画面からの遷移処理
 @b01_bp.route('/B01')
 def show_b01():
     # 必要なセッションキー
@@ -169,9 +169,9 @@ def secured_21_reviews(df_scraping_reviews,continuation_token1,start,end,start_d
         
     # 次の21件がなく、開始日がない場合、レビュー1000件抽出を行う
     if len(df_scraping_reviews[start:end])<21 and start_date_flag==False:
+        scraping_reviews(continuation_token1) # TODO:要修正
         start+=21
         end+=21
-        scraping_reviews(continuation_token1)
         
     # 次の21件がある場合
     else: # TODO:ifにして、レビュー1000件抽出後にまたここに来れるようにする
@@ -191,5 +191,46 @@ def filterling_keyword(df_21_reviews,keyword):
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # イベント処理
 @b01_bp.route('/B01_event')
-def show_b01_event():
-    print
+def b01_event():
+    # セッションから値取得
+    start_date = session['start_date']
+    end_date = session['end_date']
+    
+
+        
+
+        
+    while len(filtered_reviews)<21:
+        # レビュー21件確保
+        df_21_reviews,start,end,continuation_token1=secured_21_reviews(df_scraping_reviews,continuation_token1,start,end,start_date_flag)
+        
+        # レビュー21件確保できない場合
+        if df_21_reviews.empty:
+            break
+        
+        # キーワード指定
+        if keyword != 'なし':
+            df_21_reviews=filterling_keyword(df_21_reviews,keyword)
+            
+        # キーワードフィルタリングの結果、0件になった場合
+        if df_21_reviews.empty:
+            continue
+        
+        # ネガポジフィルタリング
+        filtered_reviews = pd.concat([filtered_reviews, filter_reviews_by_sentiment(df_21_reviews, sentiment)], ignore_index=True)
+        
+    # 要約翻訳
+    filtered_reviews = process_reviews(filtered_reviews)
+    print(filtered_reviews)   
+    
+    # データが存在しない場合
+    if filtered_reviews.empty:
+        errorMessage_list = "条件に一致するレビューが見つかりませんでした"
+        return render_template('B01.html', errorMessage_list=errorMessage_list)
+    
+    # json変換
+    df_all=filtered_reviews.to_json(force_ascii=False,orient='records')
+    
+    # データが存在する場合
+    return render_template('B01.html', appName=appName, start_date=start_date, end_date=end_date, sentiment=sentiment, keyword=keyword,reviews=df_all)
+    
