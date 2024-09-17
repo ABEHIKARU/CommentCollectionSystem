@@ -188,50 +188,56 @@ def filterling_keyword(df_21_reviews,keyword):
         
     return df_21_reviews
 
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# イベント処理 次へと前ボタンの処理をかく
+# #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# #イベント処理 次へと前ボタンの処理をかく
 
-@b01_bp.route('/B01_event')
-def b01_event():
-    # セッションから値取得
-    start_date = session['start_date']
-    end_date = session['end_date']
-    
+# @b01_bp.route('/B01_event')
+# def b01_event():
+#     # セッションから値取得
+#     app_id = session['app_id']
+#     start_date = session['start_date']
+#     end_date = session['end_date']
+#     flag = session['flag']
+#     keyword = session['keyword']
+#     # アプリ名の取得
+#     appName = get_app_name(app_id)
+
+#     # ネガポジ種別フラグの文字列化
+#     sentiment = convert_sentiment_flag(flag)
+        
 
         
-
+#     while len(filtered_reviews)<21:
+#         # レビュー21件確保
+#         df_21_reviews,start,end,continuation_token1=secured_21_reviews(df_scraping_reviews,continuation_token1,start,end,start_date_flag)
         
-    while len(filtered_reviews)<21:
-        # レビュー21件確保
-        df_21_reviews,start,end,continuation_token1=secured_21_reviews(df_scraping_reviews,continuation_token1,start,end,start_date_flag)
+#         # レビュー21件確保できない場合
+#         if df_21_reviews.empty:
+#             break
         
-        # レビュー21件確保できない場合
-        if df_21_reviews.empty:
-            break
-        
-        # キーワード指定
-        if keyword != 'なし':
-            df_21_reviews=filterling_keyword(df_21_reviews,keyword)
+#         # キーワード指定
+#         if keyword != 'なし':
+#             df_21_reviews=filterling_keyword(df_21_reviews,keyword)
             
-        # キーワードフィルタリングの結果、0件になった場合
-        if df_21_reviews.empty:
-            continue
+#         # キーワードフィルタリングの結果、0件になった場合
+#         if df_21_reviews.empty:
+#             continue
         
-        # ネガポジフィルタリング
-        filtered_reviews = pd.concat([filtered_reviews, filter_reviews_by_sentiment(df_21_reviews, sentiment)], ignore_index=True)
+#         # ネガポジフィルタリング
+#         filtered_reviews = pd.concat([filtered_reviews, filter_reviews_by_sentiment(df_21_reviews, sentiment)], ignore_index=True)
         
-    # 要約翻訳
-    filtered_reviews = process_reviews(filtered_reviews)
-    print(filtered_reviews)   
+#     # 要約翻訳
+#     filtered_reviews = process_reviews(filtered_reviews)
+#     print(filtered_reviews)   
     
-    # データが存在しない場合
-    if filtered_reviews.empty:
-        errorMessage_list = "条件に一致するレビューが見つかりませんでした"
-        return render_template('B01.html', errorMessage_list=errorMessage_list)
+#     # データが存在しない場合
+#     if filtered_reviews.empty:
+#         errorMessage_list = "条件に一致するレビューが見つかりませんでした"
+#         return render_template('B01.html', errorMessage_list=errorMessage_list)
     
-    # json変換
-    df_all=filtered_reviews.to_json(force_ascii=False,orient='records')
+#     # json変換
+#     df_all=filtered_reviews.to_json(force_ascii=False,orient='records')
     
-    # データが存在する場合
-    return render_template('B01.html', appName=appName, start_date=start_date, end_date=end_date, sentiment=sentiment, keyword=keyword,reviews=df_all)
-    
+#     # データが存在する場合
+#     return render_template('B01.html', appName=appName, start_date=start_date, end_date=end_date, sentiment=sentiment, keyword=keyword,reviews=df_all)
+
