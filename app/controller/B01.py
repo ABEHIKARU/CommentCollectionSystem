@@ -111,7 +111,7 @@ def scraping_reviews(app_id, end_date,start_date,continuation_token):
     """指定期間内のレビューを抽出する"""
     # TODO:一度だけ変数の初期化をする 
     df_M=pd.DataFrame()
-    end_date_search = pd.to_datetime(end_date) + pd.DateOffset(hours=23, minutes=59, seconds=59)# 終了日を日付型に
+    end_date_search = pd.to_datetime(end_date).date() # 終了日を日付型に
     start_date_search = pd.to_datetime(start_date) # 開始日を日付型に
 
     while True:
@@ -136,13 +136,19 @@ def scraping_reviews(app_id, end_date,start_date,continuation_token):
         df_M = pd.concat([df_M, df_L[['at', 'content']]], ignore_index=True)
         del df_L
 
-        # 日付型に変更
-        df_M['at'] = pd.to_datetime(df_M['at'])
+        # # 日付型に変更
+        # df_M['at'] = pd.to_datetime(df_M['at'])
 
-        # 終了日より過去のデータがある場合
-        if (df_M['at']<=end_date_search).any():
-            df_M = df_M[(df_M['at'] <= end_date_search)]
-            
+        # # 終了日より過去のデータがある場合
+        # if (df_M['at']<=end_date_search).any():
+        #     df_M = df_M[(df_M['at'] <= end_date_search)]
+        df_M['date_only'] = df_M['at'].dt.date  # 日付部分だけを取得
+        
+
+        # 終了日までのデータをフィルタリング
+        if (df_M['date_only'] <= end_date_search).any():
+            df_M = df_M[df_M['date_only'] <= end_date_search] 
+        
         # 開始日より未来のデータがある場合
         if (df_M['at']>start_date_search).any():
             df_M = df_M[df_M['at'] > start_date_search]
