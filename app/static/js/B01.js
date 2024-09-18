@@ -244,16 +244,13 @@ document.querySelector(".backpageButton").addEventListener("click", function (ev
     }
 });
 
-// ページ読み込み時にレビューを表示
-document.addEventListener("DOMContentLoaded", function () {
-    displayReviews();  // 初回読み込み時にレビューを表示
-});
+// // ページ読み込み時にレビューを表示
+// document.addEventListener("DOMContentLoaded", function () {
+//     displayReviews();  // 初回読み込み時にレビューを表示
+// });
 
 
-// ページ読み込み時にレビューを表示
-document.addEventListener("DOMContentLoaded", function () {
-    displayReviews();  // 初回読み込み時にレビューを表示
-});
+
 
 // ページが読み込まれたときにタイトルにフォーカスを設定する関数
 function focusTitle() {
