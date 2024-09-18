@@ -13,7 +13,7 @@
 </head>
 
 <body>
-    <h1>レビュー一覧</h1>
+    <h1 id="title">レビュー一覧</h1>
 
     <!-- アプリ情報のテーブル -->
     <div>
@@ -53,17 +53,32 @@
                 <!-- レビュー内容はJavaScriptによってここに挿入されます -->
             </tbody>
         </table>
+
+        {% if errorMessage_list %}
+            <p>{{errorMessage_list}}</p>
+        {% endif %}
     </div>
 
     <!-- エラーメッセージを表示するための空のdiv -->
     <div id="errorMessage"></div>
 
-    <!-- フォーム部分 -->
-    <form method="post" action="/B01">
+    
+    <!-- <form method="post" action="/B01_event">
         <input type="submit" value="前へ" name="backpageButton" class="backpageButton">
         <span>ページ目</span>
         <input type="submit" value="次へ" name="nextpageButton" class="nextpageButton">
+    </form> -->
+    <form>
+        <!-- 「前へ」ボタン、初期状態は非表示 -->
+        <button type="button" name="backpageButton" class="backpageButton" style="display: none;">前へ</button>
+        
+        <span>ページ目</span>
+        
+        <!-- 「次へ」ボタン、データが21件以上ある場合に表示 -->
+        <button type="button" name="nextpageButton" class="nextpageButton" style="display: none;">次へ</button>
     </form>
+    
+
 
     <form method="post" action="/A01_clear_session_and_redirect" id="backToSearchForm">
         <!-- 検索画面に戻るボタン -->
@@ -83,6 +98,22 @@
                 }
             }
         };
+        // 「次へ」ボタンの表示・非表示を制御
+        const nextPageButton = document.querySelector(".nextpageButton");
+        if (totalReviews > itemsPerPage * currentPage) {
+            nextPageButton.style.display = 'inline';  // データがまだある場合は表示
+        } else {
+            nextPageButton.style.display = 'none';  // データがない場合は非表示
+        }
+
+        // 「前へ」ボタンの表示・非表示を制御
+        const backPageButton = document.querySelector(".backpageButton");
+        if (currentPage > 1) {
+            backPageButton.style.display = 'inline';  // 1ページ目以外は表示
+        } else {
+            backPageButton.style.display = 'none';  // 1ページ目の場合は非表示
+        }
+
     </script>
 </body>
 </html>
