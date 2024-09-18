@@ -111,7 +111,7 @@ def scraping_reviews(app_id, end_date,start_date,continuation_token):
     """指定期間内のレビューを抽出する"""
     # TODO:一度だけ変数の初期化をする 
     df_M=pd.DataFrame()
-    end_date_search = pd.to_datetime(end_date) # 終了日を日付型に
+    end_date_search = pd.to_datetime(end_date) + pd.DateOffset(hours=23, minutes=59, seconds=59)# 終了日を日付型に
     start_date_search = pd.to_datetime(start_date) # 開始日を日付型に
 
     while True:
