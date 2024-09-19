@@ -34,29 +34,31 @@ def show_b01():
     # ネガポジ種別フラグの文字列化
     sentiment = convert_sentiment_flag(flag)
 
-    filtered_reviews=pd.DataFrame() # ネガポジ判断後のdfを初期化
-    continuation_token=None # 継続トークンの初期化
-    pd.set_option('display.max_rows', None) # pandasの行をターミナルに全て表示
+    filtered_reviews=pd.DataFrame()  # ネガポジ判断後のdfを初期化
+    continuation_token=None  # 継続トークンの初期化
+    pd.set_option('display.max_rows', None)  # pandasの行をターミナルに全て表示
     pd.set_option('display.max_columns', None)
     pd.options.display.max_colwidth=10000
     
     # レビュー1000件抽出
-    df_scraping_reviews,continuation_token1,start_date_flag = scraping_reviews(app_id, end_date,start_date,continuation_token)
+    df_scraping_reviews, continuation_token1, start_date_flag = scraping_reviews(app_id, end_date, start_date, continuation_token)
     
-    start=0 # 21件確保の始点
-    end=21 # 21件確保の終点
+    start = 0  # 21件確保の始点
+    end = 21  # 21件確保の終点
         
-    while len(filtered_reviews)<21:
+    # 指定された期間内のレビューが見つかるまで繰り返す
+    while len(filtered_reviews) < 21:
         # レビュー21件確保
-        df_21_reviews,start,end,continuation_token1=secured_21_reviews(df_scraping_reviews,continuation_token1,start,end,start_date_flag)
-        
+        df_21_reviews, start, end, continuation_token1 = secured_21_reviews(
+            df_scraping_reviews, continuation_token1, start, end, start_date_flag, app_id, start_date, end_date)
+
         # レビュー21件確保できない場合
         if df_21_reviews.empty:
             break
         
         # キーワード指定
         if keyword != 'なし':
-            df_21_reviews=filterling_keyword(df_21_reviews,keyword)
+            df_21_reviews = filterling_keyword(df_21_reviews, keyword)
             
         # キーワードフィルタリングの結果、0件になった場合
         if df_21_reviews.empty:
@@ -64,7 +66,7 @@ def show_b01():
         
         # ネガポジフィルタリング
         filtered_reviews = pd.concat([filtered_reviews, filter_reviews_by_sentiment(df_21_reviews, sentiment)], ignore_index=True)
-        
+    
     # 要約翻訳
     filtered_reviews = process_reviews(filtered_reviews)
     print(filtered_reviews)   
@@ -75,10 +77,10 @@ def show_b01():
         return render_template('B01.html', errorMessage_list=errorMessage_list)
     
     # json変換
-    df_all=filtered_reviews.to_json(force_ascii=False,orient='records')
+    df_all = filtered_reviews.to_json(force_ascii=False, orient='records')
     
     # データが存在する場合
-    return render_template('B01.html', appName=appName, start_date=start_date, end_date=end_date, sentiment=sentiment, keyword=keyword,reviews=df_all)
+    return render_template('B01.html', appName=appName, start_date=start_date, end_date=end_date, sentiment=sentiment, keyword=keyword, reviews=df_all)
     
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # 関数
@@ -107,12 +109,38 @@ def convert_sentiment_flag(flag):
     }
     return sentiment_map[flag]
 
-def scraping_reviews(app_id, end_date,start_date,continuation_token):
+def secured_21_reviews(df_scraping_reviews, continuation_token1, start, end, start_date_flag, app_id, start_date, end_date):
+    """レビュー21件を確保する"""
+    df_S = pd.DataFrame()
+
+    while len(df_S) < 21:
+        # レビューが足りない場合、新しいレビューを取得
+        if start >= len(df_scraping_reviews):
+            df_new_scraping_reviews, continuation_token1, start_date_flag = scraping_reviews(
+                app_id, end_date, start_date, continuation_token1)
+            
+            if df_new_scraping_reviews.empty:
+                break
+
+            df_scraping_reviews = pd.concat([df_scraping_reviews, df_new_scraping_reviews], ignore_index=True)
+
+        # 21件のレビューを取得
+        df_S = pd.concat([df_S, df_scraping_reviews[start:end]], ignore_index=True)
+        start += 21
+        end += 21
+
+    return df_S, start, end, continuation_token1
+
+def filterling_keyword(df_21_reviews, keyword):
+    """キーワードフィルタリング"""
+    df_21_reviews = df_21_reviews[df_21_reviews['content'].str.contains(keyword, case=False, na=False)]
+    return df_21_reviews
+
+def scraping_reviews(app_id, end_date, start_date, continuation_token):
     """指定期間内のレビューを抽出する"""
-    # TODO:一度だけ変数の初期化をする 
-    df_M=pd.DataFrame()
-    end_date_search = pd.to_datetime(end_date).date() # 終了日を日付型に
-    start_date_search = pd.to_datetime(start_date) # 開始日を日付型に
+    df_M = pd.DataFrame()
+    end_date_search = pd.to_datetime(end_date).date()  # 終了日を日付型に
+    start_date_search = pd.to_datetime(start_date).date()  # 開始日を日付型に
 
     while True:
         start_date_flag = False
@@ -127,123 +155,26 @@ def scraping_reviews(app_id, end_date,start_date,continuation_token):
             continuation_token=continuation_token
         )
         
-        # レビューが存在しない場合
         if not result:
-            return df_M # TODO:メイン処理でdf_Mの初期化をする
+            return df_M, continuation_token, start_date_flag
 
-        # 抽出した1000件のデータを継ぎ足す
         df_L = pd.DataFrame(result)
-        df_M = pd.concat([df_M, df_L[['at', 'content']]], ignore_index=True)
-        del df_L
+        
+        # 'at'を日付型に変換してフィルタリング
+        df_L['at'] = pd.to_datetime(df_L['at']).dt.date
+        
+        # 指定された期間のレビューのみをフィルタリング
+        df_L_filtered = df_L[(df_L['at'] >= start_date_search) & (df_L['at'] <= end_date_search)]
+        
+        # フィルタリングした結果をマスターデータフレームに追加
+        df_M = pd.concat([df_M, df_L_filtered[['at', 'content']]], ignore_index=True)
 
-        # # 日付型に変更
-        # df_M['at'] = pd.to_datetime(df_M['at'])
+        # 期間内のレビューがあれば終了
+        if not df_L_filtered.empty:
+            start_date_flag = True
 
-        # # 終了日より過去のデータがある場合
-        # if (df_M['at']<=end_date_search).any():
-        #     df_M = df_M[(df_M['at'] <= end_date_search)]
-        df_M['date_only'] = df_M['at'].dt.date  # 日付部分だけを取得
+        # すべてのレビューを見た場合、またはcontinuation_tokenがない場合は終了
+        if continuation_token is None or (df_L['at'].min() < start_date_search):
+            break
         
-
-        # 終了日までのデータをフィルタリング
-        if (df_M['date_only'] <= end_date_search).any():
-            df_M = df_M[df_M['date_only'] <= end_date_search] 
-        
-        # 開始日より未来のデータがある場合
-        if (df_M['at']>start_date_search).any():
-            df_M = df_M[df_M['at'] > start_date_search]
-            start_date_flag=True
-            
-        # 開始日がない、かつ、開始日と終了日が同じ場合
-        if start_date_flag==False and start_date==end_date:
-            df_M=None
-            return df_M,continuation_token,start_date_flag
-        
-        # 開始日がない、かつ、21件未満の場合
-        if start_date_flag==False and df_M.shape[0]<21:
-            continue
-        
-        # 投稿日時の形式を変更
-        df_M['at'] = df_M['at'].dt.strftime('%Y/%m/%d %H:%M')
-                    
-        return df_M,continuation_token,start_date_flag
-
-def secured_21_reviews(df_scraping_reviews,continuation_token1,start,end,start_date_flag):
-    """レビュー21件を確保する"""
-    # データフレームの初期化
-    df_S=pd.DataFrame()
-        
-    # 次の21件がなく、開始日がない場合、レビュー1000件抽出を行う
-    if len(df_scraping_reviews[start:end])<21 and start_date_flag==False:
-        scraping_reviews(continuation_token1) # TODO:要修正
-        start+=21
-        end+=21
-        
-    # 次の21件がある場合
-    else: # TODO:ifにして、レビュー1000件抽出後にまたここに来れるようにする
-        # 21件を別のdfに継ぎ足す
-        df_S=pd.concat([df_S,df_scraping_reviews[start:end]],ignore_index=True)
-        start+=21
-        end+=21
-        
-        return df_S,start,end,continuation_token1
-
-def filterling_keyword(df_21_reviews,keyword):
-    """キーワードフィルタリング"""
-    df_21_reviews = df_21_reviews[df_21_reviews['content'].str.contains(keyword, case=False, na=False)]
-        
-    return df_21_reviews
-
-# #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# #イベント処理 次へと前ボタンの処理をかく
-
-# @b01_bp.route('/B01_event')
-# def b01_event():
-#     # セッションから値取得
-#     app_id = session['app_id']
-#     start_date = session['start_date']
-#     end_date = session['end_date']
-#     flag = session['flag']
-#     keyword = session['keyword']
-#     # アプリ名の取得
-#     appName = get_app_name(app_id)
-
-#     # ネガポジ種別フラグの文字列化
-#     sentiment = convert_sentiment_flag(flag)
-        
-
-        
-#     while len(filtered_reviews)<21:
-#         # レビュー21件確保
-#         df_21_reviews,start,end,continuation_token1=secured_21_reviews(df_scraping_reviews,continuation_token1,start,end,start_date_flag)
-        
-#         # レビュー21件確保できない場合
-#         if df_21_reviews.empty:
-#             break
-        
-#         # キーワード指定
-#         if keyword != 'なし':
-#             df_21_reviews=filterling_keyword(df_21_reviews,keyword)
-            
-#         # キーワードフィルタリングの結果、0件になった場合
-#         if df_21_reviews.empty:
-#             continue
-        
-#         # ネガポジフィルタリング
-#         filtered_reviews = pd.concat([filtered_reviews, filter_reviews_by_sentiment(df_21_reviews, sentiment)], ignore_index=True)
-        
-#     # 要約翻訳
-#     filtered_reviews = process_reviews(filtered_reviews)
-#     print(filtered_reviews)   
-    
-#     # データが存在しない場合
-#     if filtered_reviews.empty:
-#         errorMessage_list = "条件に一致するレビューが見つかりませんでした"
-#         return render_template('B01.html', errorMessage_list=errorMessage_list)
-    
-#     # json変換
-#     df_all=filtered_reviews.to_json(force_ascii=False,orient='records')
-    
-#     # データが存在する場合
-#     return render_template('B01.html', appName=appName, start_date=start_date, end_date=end_date, sentiment=sentiment, keyword=keyword,reviews=df_all)
-
+    return df_M, continuation_token, start_date_flag
