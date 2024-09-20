@@ -122,7 +122,7 @@ def convert_sentiment_flag(flag):
 def scraping_reviews(app_id, end_date, start_date, continuation_token):
     """指定期間内のレビューを抽出する"""
     df_M = pd.DataFrame()  # 期間フィルタリング後のdfの初期化
-    end_date_search = pd.to_datetime(end_date)  # 終了日をdatetime型に変換
+    end_date_search = pd.to_datetime(end_date)  + pd.DateOffset(hours=23, minutes=59, seconds=59)  # 終了日をdatetime型に変換
     start_date_search = pd.to_datetime(start_date)  # 開始日をdatetime型に変換
 
     while True:
