@@ -84,7 +84,8 @@ def show_b01():
         return render_template('B01.html', errorMessage_list=errorMessage_list)
     
     filtered_reviews['at'] = pd.to_datetime(filtered_reviews['at']).dt.strftime('%Y/%m/%d %H:%M')
-    print(filtered_reviews)   
+    print(filtered_reviews) 
+
     # json変換
     df_all = filtered_reviews.to_json(force_ascii=False, orient='records')
     
@@ -208,52 +209,52 @@ def filterling_keyword(df_21_reviews, keyword):
     df_21_reviews = df_21_reviews[df_21_reviews['content'].str.contains(keyword, case=False, na=False)]
     return df_21_reviews
 
-def scraping_reviews(app_id, end_date, start_date, continuation_token):
-    """レビューを抽出する"""
-    df_M = pd.DataFrame()  # 全てのレビューを格納するためのデータフレーム
-    end_date_search = pd.to_datetime(end_date)  # 終了日をdatetime型に変換
-    start_date_search = pd.to_datetime(start_date)  # 開始日をdatetime型に変換
+# def scraping_reviews(app_id, end_date, start_date, continuation_token):
+#     """レビューを抽出する"""
+#     df_M = pd.DataFrame()  # 全てのレビューを格納するためのデータフレーム
+#     end_date_search = pd.to_datetime(end_date)  # 終了日をdatetime型に変換
+#     start_date_search = pd.to_datetime(start_date)  # 開始日をdatetime型に変換
 
-    while True:
-        start_date_flag = False
+#     while True:
+#         start_date_flag = False
         
-        # Google Playのレビュー1000件を抽出
-        result, continuation_token = reviews(
-            app_id, 
-            lang='ja',
-            country='jp',
-            sort=Sort.NEWEST,  # 新しい順に抽出
-            count=1000,  # 1000件までのレビューを取得
-            continuation_token=continuation_token
-        )
+#         # Google Playのレビュー1000件を抽出
+#         result, continuation_token = reviews(
+#             app_id, 
+#             lang='ja',
+#             country='jp',
+#             sort=Sort.NEWEST,  # 新しい順に抽出
+#             count=1000,  # 1000件までのレビューを取得
+#             continuation_token=continuation_token
+#         )
         
-        # レビューが取得できなかった場合、現在のデータフレームとトークンを返す
-        if not result:
-            return df_M, continuation_token, False
+#         # レビューが取得できなかった場合、現在のデータフレームとトークンを返す
+#         if not result:
+#             return df_M, continuation_token, False
 
-        df_L = pd.DataFrame(result)
+#         df_L = pd.DataFrame(result)
 
-        # 'at' 列を datetime 型に変換する
-        df_L['at'] = pd.to_datetime(df_L['at'])
+#         # 'at' 列を datetime 型に変換する
+#         df_L['at'] = pd.to_datetime(df_L['at'])
 
-        # 指定された期間内のレビューのみをフィルタリング
-        df_L_filtered = df_L[(df_L['at'] >= start_date_search) & (df_L['at'] <= end_date_search)]
-        # TODO 期間フィルタリングは別個で関数作った方が良くないか？
+#         # 指定された期間内のレビューのみをフィルタリング
+#         df_L_filtered = df_L[(df_L['at'] >= start_date_search) & (df_L['at'] <= end_date_search)]
+#         # TODO 期間フィルタリングは別個で関数作った方が良くないか？
         
-        # フィルタリングした結果をマスターデータフレームに追加
-        df_M = pd.concat([df_M, df_L_filtered[['at', 'content']]], ignore_index=True)
-        # 'at'列の日付を '%Y/%m/%d %H:%M' 形式に変換
-        df_M['at'] = df_M['at'].dt.strftime('%Y/%m/%d %H:%M')
-        # 期間内のレビューが見つかった場合、フラグをセット
-        if not df_L_filtered.empty:
-            start_date_flag = True
-            # TODO 終了日で判断するべきでは？
+#         # フィルタリングした結果をマスターデータフレームに追加
+#         df_M = pd.concat([df_M, df_L_filtered[['at', 'content']]], ignore_index=True)
+#         # 'at'列の日付を '%Y/%m/%d %H:%M' 形式に変換
+#         df_M['at'] = df_M['at'].dt.strftime('%Y/%m/%d %H:%M')
+#         # 期間内のレビューが見つかった場合、フラグをセット
+#         if not df_L_filtered.empty:
+#             start_date_flag = True
+#             # TODO 終了日で判断するべきでは？
 
-        # continuation_tokenが無ければ終了 TODO Noneにはならないのでは？
-        if continuation_token is None or (df_L['at'].min() < start_date_search):
-            break
+#         # continuation_tokenが無ければ終了 TODO Noneにはならないのでは？
+#         if continuation_token is None or (df_L['at'].min() < start_date_search):
+#             break
         
-    return df_M, continuation_token, start_date_flag
+#     return df_M, continuation_token, start_date_flag
 
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
