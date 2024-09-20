@@ -37,13 +37,12 @@ def show_b01():
 
     filtered_reviews=pd.DataFrame()  # ネガポジ判断後のdfを初期化
     continuation_token=None  # 継続トークンの初期化
-    df_M = pd.DataFrame()  # 全てのレビューを格納するためのデータフレーム
     pd.set_option('display.max_rows', None)  # pandasの行をターミナルに全て表示
     pd.set_option('display.max_columns', None)
     pd.options.display.max_colwidth=10000
     
     # レビュー1000件抽出
-    df_scraping_reviews, continuation_token1, start_date_flag = scraping_reviews(app_id, end_date, start_date, continuation_token,df_M)
+    df_scraping_reviews, continuation_token1, start_date_flag = scraping_reviews(app_id, end_date, start_date, continuation_token)
     
     # レビューが空の場合のエラーメッセージ
     if df_scraping_reviews.empty:
@@ -119,8 +118,9 @@ def convert_sentiment_flag(flag):
     }
     return sentiment_map[flag]
 
-def scraping_reviews(app_id, end_date, start_date, continuation_token,df_M):
+def scraping_reviews(app_id, end_date, start_date, continuation_token):
     """指定期間内のレビューを抽出する"""
+    df_M = pd.DataFrame()  # 期間フィルタリング後のdfの初期化
     end_date_search = pd.to_datetime(end_date)  # 終了日をdatetime型に変換
     start_date_search = pd.to_datetime(start_date)  # 開始日をdatetime型に変換
 
@@ -161,11 +161,6 @@ def scraping_reviews(app_id, end_date, start_date, continuation_token,df_M):
             if (df_M['at']>start_date_search).any():
                 df_M = df_M[df_M['at'] >= start_date_search]
                 start_date_flag=True
-            
-        # # 開始日がない、かつ、開始日と終了日が同じ場合
-        # if start_date_flag==False and start_date==end_date:
-        #     df_M=None
-        #     return df_M,continuation_token,start_date_flag
         
         # 開始日がない、かつ、21件未満の場合
         if start_date_flag==False and len(df_M)<21:
