@@ -207,6 +207,10 @@ function displayReviews() {
                         }
                     });
 
+                     // ページ番号を更新
+                     const currentPageDisplay = document.getElementById('currentPageDisplay');
+                     currentPageDisplay.textContent = `${currentPage}ページ目`;
+
                     // 「次へ」ボタンの表示・非表示を制御
                     const nextPageButton = document.querySelector(".nextpageButton");
                     if (totalReviews > end) {
