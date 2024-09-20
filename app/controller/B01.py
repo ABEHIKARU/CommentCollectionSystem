@@ -62,13 +62,14 @@ def show_b01():
         if keyword != 'なし':
             df_21_reviews = filterling_keyword(df_21_reviews, keyword)
             
-        # キーワードフィルタリングの結果、0件になった場合
-        if df_21_reviews.empty:
-            continue
-        
+            # キーワードフィルタリングの結果、レビューが0件になった場合
+            if df_21_reviews.empty:
+                errorMessage_list = "条件に一致するレビューが見つかりませんでした"
+                return render_template('B01.html',appName=appName, start_date=start_date, end_date=end_date, sentiment=sentiment, keyword=keyword, errorMessage_list=errorMessage_list)
+
         # ネガポジフィルタリング
         filtered_reviews = pd.concat([filtered_reviews, filter_reviews_by_sentiment(df_21_reviews, sentiment)], ignore_index=True)
-    
+
     # 要約翻訳
     filtered_reviews = process_reviews(filtered_reviews)
     
