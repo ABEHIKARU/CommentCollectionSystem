@@ -1,4 +1,3 @@
-
 from flask import Blueprint, render_template, session
 from google_play_scraper import search, Sort, reviews
 import pandas as pd
@@ -38,12 +37,13 @@ def show_b01():
 
     filtered_reviews=pd.DataFrame()  # ネガポジ判断後のdfを初期化
     continuation_token=None  # 継続トークンの初期化
+    df_M = pd.DataFrame()  # 全てのレビューを格納するためのデータフレーム
     pd.set_option('display.max_rows', None)  # pandasの行をターミナルに全て表示
     pd.set_option('display.max_columns', None)
     pd.options.display.max_colwidth=10000
     
     # レビュー1000件抽出
-    df_scraping_reviews, continuation_token1, start_date_flag = scraping_reviews(app_id, end_date, start_date, continuation_token)
+    df_scraping_reviews, continuation_token1, start_date_flag = scraping_reviews(app_id, end_date, start_date, continuation_token,df_M)
     
     # レビューが空の場合のエラーメッセージ
     if df_scraping_reviews.empty:
@@ -119,14 +119,13 @@ def convert_sentiment_flag(flag):
     }
     return sentiment_map[flag]
 
-def scraping_reviews(app_id, end_date, start_date, continuation_token):
+def scraping_reviews(app_id, end_date, start_date, continuation_token,df_M):
     """指定期間内のレビューを抽出する"""
-    # TODO:一度だけ変数の初期化をする 
-    df_M = pd.DataFrame()  # 全てのレビューを格納するためのデータフレーム
     end_date_search = pd.to_datetime(end_date)  # 終了日をdatetime型に変換
     start_date_search = pd.to_datetime(start_date)  # 開始日をdatetime型に変換
 
     while True:
+        end_date_flag = False
         start_date_flag = False
         
         try:
@@ -144,7 +143,7 @@ def scraping_reviews(app_id, end_date, start_date, continuation_token):
             return df_M, continuation_token, start_date_flag
         
         if not result:
-            return df_M, continuation_token, start_date_flag # TODO:メイン処理でdf_Mの初期化をする
+            return df_M, continuation_token, start_date_flag 
 
         df_L = pd.DataFrame(result) # レビュー1000件をとりあえず入れておく
         df_M = pd.concat([df_M, df_L[['at', 'content']]], ignore_index=True) # 投稿日時とレビュー原文の列だけ保持
@@ -156,11 +155,12 @@ def scraping_reviews(app_id, end_date, start_date, continuation_token):
         # 終了日より過去のデータがある場合、終了日より未来のデータを削除
         if (df_M['at']<=end_date_search).any():
             df_M = df_M[(df_M['at'] <= end_date_search)]
+            end_date_flag=True
             
-        # 開始日より未来のデータがある場合、開始日より過去のデータを削除
-        if (df_M['at']>start_date_search).any():
-            df_M = df_M[df_M['at'] >= start_date_search]
-            start_date_flag=True
+            # 開始日より未来のデータがある場合、開始日より過去のデータを削除
+            if (df_M['at']>start_date_search).any():
+                df_M = df_M[df_M['at'] >= start_date_search]
+                start_date_flag=True
             
         # # 開始日がない、かつ、開始日と終了日が同じ場合
         # if start_date_flag==False and start_date==end_date:
@@ -171,12 +171,11 @@ def scraping_reviews(app_id, end_date, start_date, continuation_token):
         if start_date_flag==False and len(df_M)<21:
             continue
         
-        # 抽出したデータが21件以上の場合
-        elif len(df_M)>=21:
-            break
-
-        # 投稿日時の形式を変更
-        df_M['at'] = df_M['at'].dt.strftime('%Y/%m/%d %H:%M')
+        # 抽出データが21件以上あり、終了日がある場合
+        if len(df_M)>=21 and end_date_flag==True:
+            # 投稿日時の形式を変更
+            df_M['at'] = df_M['at'].dt.strftime('%Y/%m/%d %H:%M')
+            return df_M, continuation_token, start_date_flag    
 
         # # 期間内のレビューが見つかった場合、フラグをセット
         # if not df_L_filtered.empty:
@@ -186,8 +185,6 @@ def scraping_reviews(app_id, end_date, start_date, continuation_token):
         # # continuation_tokenが無ければ終了 TODO Noneにはならないのでは？
         # if continuation_token is None or (df_L['at'].min() < start_date_search):
         #     break
-        
-    return df_M, continuation_token, start_date_flag
 
 def secured_21_reviews(df_scraping_reviews, continuation_token1, start, end, start_date_flag, app_id, start_date, end_date):
     """レビュー21件を確保する"""
