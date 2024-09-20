@@ -108,7 +108,7 @@ h1 {
 }
 
 .input-group span {
-    padding: 0 10px;
+    /* padding: 0 10px; */
     color: #000; /* 文字色を黒に設定 */
 }
 
