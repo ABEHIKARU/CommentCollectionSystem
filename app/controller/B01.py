@@ -45,6 +45,8 @@ def show_b01():
     # レビュー1000件抽出
     df_scraping_reviews, continuation_token1, start_date_flag = scraping_reviews(app_id, end_date, start_date, continuation_token)
     
+    # TODO　該当レビューない場合おしまいですよ条件に一致するレビューが見つかりませんでした出せの処理
+
     start = 0  # 21件確保の始点
     end = 21  # 21件確保の終点
         
@@ -169,6 +171,7 @@ def scraping_reviews(app_id, end_date, start_date, continuation_token):
 
         # 指定された期間内のレビューのみをフィルタリング
         df_L_filtered = df_L[(df_L['at'] >= start_date_search) & (df_L['at'] <= end_date_search)]
+        # TODO 期間フィルタリングは別個で関数作った方が良くないか？
         
         # フィルタリングした結果をマスターデータフレームに追加
         df_M = pd.concat([df_M, df_L_filtered[['at', 'content']]], ignore_index=True)
@@ -177,8 +180,9 @@ def scraping_reviews(app_id, end_date, start_date, continuation_token):
         # 期間内のレビューが見つかった場合、フラグをセット
         if not df_L_filtered.empty:
             start_date_flag = True
+            # TODO 終了日で判断するべきでは？
 
-        # continuation_tokenが無ければ終了
+        # continuation_tokenが無ければ終了 TODO Noneにはならないのでは？
         if continuation_token is None or (df_L['at'].min() < start_date_search):
             break
         
