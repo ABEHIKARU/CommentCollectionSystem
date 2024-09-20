@@ -181,7 +181,7 @@ function displayReviews() {
         })
         .catch(error => console.error("Database error:", error));
 }
-document.querySelector(".nextPageButton").addEventListener('click', () => {
+document.querySelector(".nextpageButton").addEventListener('click', () => {
     const totalPages = Math.ceil(totalReviews / itemsPerPage);
     if (currentPage < totalPages) {
         currentSPage++;
@@ -189,7 +189,7 @@ document.querySelector(".nextPageButton").addEventListener('click', () => {
       }
 });
 
-document.querySelector(".backpPageButton").addEventListener('click', () => {
+document.querySelector(".backppageButton").addEventListener('click', () => {
     if (currentPage > 1) {
         currentPage--;
         displayReviews();
