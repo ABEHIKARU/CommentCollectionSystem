@@ -228,6 +228,27 @@ function displayReviews() {
         .catch(error => console.error("Database error:", error));
 }
 
+document.addEventListener("DOMContentLoaded", function () {
+
+    // beforeunload イベントリスナー
+    var onBeforeunloadHandler = function(e) {
+        e.preventDefault();
+        e.returnValue = '';
+    };
+
+    // beforeunload イベントを追加
+    window.addEventListener("beforeunload", onBeforeunloadHandler, false);
+
+    const formBtns = document.querySelectorAll(".backpageButton,.nextpageButton,#backToSearchSubmit");
+
+    formBtns.forEach(function (formBtn) {
+        formBtn.addEventListener("click", function () {
+            // 特定の操作（ページ遷移）時には確認ダイアログを出さない
+            window.removeEventListener("beforeunload", onBeforeunloadHandler);
+        });
+    });
+});
+
 // 「次へ」ボタンのクリックイベントハンドラ
 document.querySelector(".nextpageButton").addEventListener("click", function (event) {
     event.preventDefault();  // デフォルトのフォーム動作を防ぐ
@@ -248,43 +269,3 @@ document.querySelector(".backpageButton").addEventListener("click", function (ev
 // document.addEventListener("DOMContentLoaded", function () {
 //     displayReviews();  // 初回読み込み時にレビューを表示
 // });
-
-
-
-
-// ページが読み込まれたときにタイトルにフォーカスを設定する関数
-function focusTitle() {
-    const titleElement = document.getElementById('title');
-    if (titleElement) {
-        titleElement.focus();
-        // 自動的にクリックイベントを発火させる
-        const clickEvent = new MouseEvent('click', {
-            bubbles: true,
-            cancelable: true,
-            view: window
-        });
-        titleElement.dispatchEvent(clickEvent);
-    }
-}
-
-document.addEventListener("DOMContentLoaded", function () {
-    focusTitle();
-
-    // beforeunload イベントリスナー
-    var onBeforeunloadHandler = function(e) {
-        e.preventDefault();
-        e.returnValue = '';
-    };
-
-    // beforeunload イベントを追加
-    window.addEventListener('beforeunload', onBeforeunloadHandler, false);
-
-    const formBtns = document.querySelectorAll(".backpageButton,.nextpageButton,#backToSearchSubmit");
-
-    formBtns.forEach(function (formBtn) {
-        formBtn.addEventListener("click", () => {
-            window.removeEventListener("beforeunload", onBeforeunloadHandler);
-        });
-    });
-
-});
