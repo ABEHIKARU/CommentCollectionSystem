@@ -213,46 +213,54 @@ def filterling_keyword(df_21_reviews, keyword):
     df_21_reviews = df_21_reviews[df_21_reviews['content'].str.contains(keyword, case=False, na=False)]
     return df_21_reviews
 
-# def scraping_reviews(app_id, end_date, start_date, continuation_token):
-#     """指定期間内のレビューを抽出する"""
-#     df_M = pd.DataFrame()
-#     end_date_search = pd.to_datetime(end_date).date()  # 終了日を日付型に
-#     start_date_search = pd.to_datetime(start_date).date()  # 開始日を日付型に
+def scraping_reviews(app_id, end_date, start_date, continuation_token):
+    """レビューを抽出する"""
+    df_M = pd.DataFrame()  # 全てのレビューを格納するためのデータフレーム
+    end_date_search = pd.to_datetime(end_date)  # 終了日をdatetime型に変換
+    start_date_search = pd.to_datetime(start_date)  # 開始日をdatetime型に変換
 
-#     while True:
-#         start_date_flag = False
+    while True:
+        start_date_flag = False
         
-#         # レビュー1000件抽出
-#         result, continuation_token = reviews(
-#             app_id, 
-#             lang='ja',
-#             country='jp',
-#             sort=Sort.NEWEST,  # 新しい順に抽出
-#             count=1000,  # 1000件抽出
-#             continuation_token=continuation_token
-#         )
+        # Google Playのレビュー1000件を抽出
+        result, continuation_token = reviews(
+            app_id, 
+            lang='ja',
+            country='jp',
+            sort=Sort.NEWEST,  # 新しい順に抽出
+            count=1000,  # 1000件までのレビューを取得
+            continuation_token=continuation_token
+        )
         
-#         if not result:
-#             return df_M, continuation_token, start_date_flag
+        # レビューが取得できなかった場合、現在のデータフレームとトークンを返す
+        if not result:
+            return df_M, continuation_token, False
 
-#         df_L = pd.DataFrame(result)
-        
-#         # # 'at'を日付型に変換してフィルタリング
-#         # df_L['at'] = pd.to_datetime(df_L['at']).dt.date
-#         # 'at' 列を datetime 型に変換する
-#         df_L['at'] = pd.to_datetime(df_L['at'])
-#         # 指定された期間のレビューのみをフィルタリング
-#         df_L_filtered = df_L[(df_L['at'] >= start_date_search) & (df_L['at'] <= end_date_search)]
-        
-#         # フィルタリングした結果をマスターデータフレームに追加
-#         df_M = pd.concat([df_M, df_L_filtered[['at', 'content']]], ignore_index=True)
+        df_L = pd.DataFrame(result)
 
-#         # 期間内のレビューがあれば終了
-#         if not df_L_filtered.empty:
-#             start_date_flag = True
+        # 'at' 列を datetime 型に変換する
+        df_L['at'] = pd.to_datetime(df_L['at'])
 
-#         # すべてのレビューを見た場合、またはcontinuation_tokenがない場合は終了
-#         if continuation_token is None or (df_L['at'].min() < start_date_search):
-#             break
+        # 指定された期間内のレビューのみをフィルタリング
+        df_L_filtered = df_L[(df_L['at'] >= start_date_search) & (df_L['at'] <= end_date_search)]
+        # TODO 期間フィルタリングは別個で関数作った方が良くないか？
         
-#     return df_M, continuation_token, start_date_flag
+        # フィルタリングした結果をマスターデータフレームに追加
+        df_M = pd.concat([df_M, df_L_filtered[['at', 'content']]], ignore_index=True)
+        # 'at'列の日付を '%Y/%m/%d %H:%M' 形式に変換
+        df_M['at'] = df_M['at'].dt.strftime('%Y/%m/%d %H:%M')
+        # 期間内のレビューが見つかった場合、フラグをセット
+        if not df_L_filtered.empty:
+            start_date_flag = True
+            # TODO 終了日で判断するべきでは？
+
+        # continuation_tokenが無ければ終了 TODO Noneにはならないのでは？
+        if continuation_token is None or (df_L['at'].min() < start_date_search):
+            break
+        
+    return df_M, continuation_token, start_date_flag
+
+
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# イベント処理
+
