@@ -45,7 +45,10 @@ def show_b01():
     # レビュー1000件抽出
     df_scraping_reviews, continuation_token1, start_date_flag = scraping_reviews(app_id, end_date, start_date, continuation_token)
     
-    # TODO　該当レビューない場合おしまいですよ条件に一致するレビューが見つかりませんでした出せの処理
+    # レビューが空の場合のエラーメッセージ
+    if df_scraping_reviews.empty:
+        errorMessage_list = "条件に一致するレビューが見つかりませんでした"
+        return render_template('B01.html', errorMessage_list=errorMessage_list)
 
     start = 0  # 21件確保の始点
     end = 21  # 21件確保の終点
