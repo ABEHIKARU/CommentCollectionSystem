@@ -113,56 +113,6 @@ function displayErrorMessage(message) {
     errorMessageDiv.style.color = 'red';
 }
 
-
-// IndexedDBから20件データを取得して表示する関数
-// function displayReviews() {
-//     openDatabase()  // IndexedDBデータベースを開く
-//         .then(db => {
-//             getAllDataFromIndexedDB(db)  // データベースからすべてのデータを取得
-//                 .then(data => {
-//                     const reviewTable = document.querySelector('#review-table tbody'); // 表のtbody要素を取得
-//                     let displayCount = Math.min(data.length, 20); // 20件以上なら20件まで表示、20件未満なら全件表示
-
-//                     // データが存在するかチェック
-//                     if (displayCount > 0) {
-//                         // 既存の表にデータを追加
-//                         data.slice(0, displayCount).forEach((review, index) => {
-//                             const row = reviewTable.insertRow(); // 新しい行を作成
-                            
-//                             // 各セルを作成してデータを挿入
-//                             let cellNo = row.insertCell(0);    
-//                             let cellDate = row.insertCell(1);    
-//                             let cellSentiment = row.insertCell(2); 
-//                             let cellSummary = row.insertCell(3);   
-//                             let cellOriginal = row.insertCell(4);  
-
-//                             // 各セルに対応するデータをセット
-//                             cellNo.textContent = index + 1;           // レビューの番号を設定
-//                             cellDate.textContent = review.date;        // 投稿日時（dateフィールド）を表示
-//                             cellSentiment.textContent = review.sentiment; // + / - の評価を表示
-//                             cellSummary.textContent = review.summary;   // 要約（summaryフィールド）を表示
-//                             cellOriginal.textContent = review.original; // 原文（originalフィールド）を表示
-
-//                             // 種別セルの背景色を条件に応じて設定（RGBAで透明度を加える）
-//                             if (review.sentiment === '+') {
-//                                 cellSentiment.style.backgroundColor = 'rgba(0, 0, 255, 0.2)'; // 薄い青
-//                             } else if (review.sentiment === '-') {
-//                                 cellSentiment.style.backgroundColor = 'rgba(255, 0, 0, 0.2)'; // 薄い赤
-//                             } else if (review.sentiment === '~') {
-//                                 cellSentiment.style.backgroundColor = 'rgba(0, 255, 0, 0.2)'; // 薄い緑
-//                             }
-//                         });
-//                     } else {
-//                         // データが無い場合はメッセージ表示
-//                         const errorMessageDiv = document.getElementById('errorMessage');  // エラーメッセージ表示用のdivを取得
-//                         errorMessageDiv.textContent = '表示するレビューがありません。';  // エラーメッセージを設定
-//                     }
-//                 })
-//                 .catch(error => console.error("データ取得エラー: ", error));  // データ取得エラー時の処理
-//         })
-//         .catch(error => console.error("Database error:", error));  // データベースエラー時の処理
-// }
-
 let currentPage = 1;  // 現在のページ番号
 const itemsPerPage = 20;  // 1ページに表示するレビューの件数
 
@@ -231,6 +181,20 @@ function displayReviews() {
         })
         .catch(error => console.error("Database error:", error));
 }
+document.querySelector(".nextPageButton").addEventListener('click', () => {
+    const totalPages = Math.ceil(totalReviews / itemsPerPage);
+    if (currentPage < totalPages) {
+        currentSPage++;
+        displayReviews();
+      }
+});
+
+document.querySelector(".backpPageButton").addEventListener('click', () => {
+    if (currentPage > 1) {
+        currentPage--;
+        displayReviews();
+    }
+});
 
 document.addEventListener("DOMContentLoaded", function () {
 
@@ -253,23 +217,18 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
-// 「次へ」ボタンのクリックイベントハンドラ
-document.querySelector(".nextpageButton").addEventListener("click", function (event) {
-    event.preventDefault();  // デフォルトのフォーム動作を防ぐ
-    currentPage++;  // ページを進める
-    displayReviews();  // 次のページのレビューを表示
-});
+// // 「次へ」ボタンのクリックイベントハンドラ
+// document.querySelector(".nextpageButton").addEventListener("click", function (event) {
+//     event.preventDefault();  // デフォルトのフォーム動作を防ぐ
+//     currentPage++;  // ページを進める
+//     displayReviews();  // 次のページのレビューを表示
+// });
 
-// 「前へ」ボタンのクリックイベントハンドラ
-document.querySelector(".backpageButton").addEventListener("click", function (event) {
-    event.preventDefault();  // デフォルトのフォーム動作を防ぐ
-    if (currentPage > 1) {
-        currentPage--;  // ページを戻す
-        displayReviews();  // 前のページのレビューを表示
-    }
-});
-
-// // ページ読み込み時にレビューを表示
-// document.addEventListener("DOMContentLoaded", function () {
-//     displayReviews();  // 初回読み込み時にレビューを表示
+// // 「前へ」ボタンのクリックイベントハンドラ
+// document.querySelector(".backpageButton").addEventListener("click", function (event) {
+//     event.preventDefault();  // デフォルトのフォーム動作を防ぐ
+//     if (currentPage > 1) {
+//         currentPage--;  // ページを戻す
+//         displayReviews();  // 前のページのレビューを表示
+//     }
 // });
