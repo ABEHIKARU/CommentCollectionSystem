@@ -4,6 +4,7 @@ import pandas as pd
 from controller.B02 import filter_reviews_by_sentiment  # B02からフィルタリング関数をインポート
 from controller.B03 import process_reviews  
 from datetime import datetime
+import json
 
 b01_bp = Blueprint('b01_bp', __name__)
 
@@ -87,8 +88,12 @@ def show_b01():
     print(filtered_reviews) 
 
     # json変換
-    df_all = filtered_reviews.to_json(force_ascii=False, orient='records')
-    
+    # df_all = filtered_reviews.to_json(force_ascii=False, orient='records')
+    # DataFrameを一旦辞書形式に変換し、json.dumpsでエンコード
+    df_dict = filtered_reviews.to_dict(orient='records')
+
+    # json.dumpsでASCII以外の文字も含めて出力
+    df_all = json.dumps(df_dict, ensure_ascii=False)
     # データが存在する場合
     return render_template('B01.html', appName=appName, start_date=start_date, end_date=end_date, sentiment=sentiment, keyword=keyword, reviews=df_all)
     
