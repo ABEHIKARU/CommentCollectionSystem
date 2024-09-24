@@ -342,7 +342,7 @@ def next_b01():
     sentiment = request.form.get('sentiment')
     keyword = request.form.get('keyword')
 
-    return render_template('B01.html')
+    return render_template('B01.html', appName=appName, start_date=start_date, end_date=end_date, sentiment=sentiment, keyword=keyword)
 
     # filtered_reviews=TODO 引き継ぎ  # ネガポジ判断後のdfを初期化
     # continuation_token=None  # 継続トークンの初期化
