@@ -22,7 +22,10 @@ def clean_summary(text):
     ]
     for phrase in remove_phrases:
         text = text.replace(phrase, '')
-
+    # バックスラッシュや不正なエスケープシーケンスを削除
+    text = text.replace('\\', '')  # 単体のバックスラッシュを削除
+    # 特殊文字（全角スペースや制御文字）を削除
+    text = re.sub(r'[\uFF65-\uFF9F\u3000]', '', text)  # 半角カタカナや全角スペースなどを削除
     # 連続するピリオドやカンマ、特殊文字を削除
     text = re.sub(r'[。、]{2,}', '。', text)  # 句読点の連続を1つに
     text = re.sub(r'[!！?？]{2,}', '', text)  # 繰り返しの感嘆符や疑問符を削除
