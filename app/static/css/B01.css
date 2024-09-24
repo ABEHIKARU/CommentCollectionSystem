@@ -1,0 +1,129 @@
+body {
+    font-family: 'Baskerville', 'Georgia', serif;
+    background-color: #e6eaf2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    color: #000;
+    flex-direction: column;
+}
+
+h1 {
+    font-size: 2rem;
+    margin-bottom: 20px;
+    color: #000;
+}
+
+#app-info-table, #review-table {
+    width: 100%;
+    max-width: 1200px; /* 最大幅を指定して、画面幅に応じて縮小 */
+    margin: 20px auto;
+    border-collapse: collapse;
+    background-color: #fff;
+    color: #000;
+    font-family: 'Baskerville', 'Georgia', serif;
+    box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
+}
+
+#app-info-table td {
+    padding: 10px;
+    border: 1px solid #ccc;
+}
+
+#review-table th, #review-table td {
+    padding: 10px;
+    border: 1px solid #ccc;
+    text-align: left;
+}
+
+#review-table th {
+    background-color: #f0f0f0; /* 薄いグレーに変更 */
+    color: #000; /* 文字色は黒 */
+}
+
+#review-table td {
+    background-color: #fff;
+    color: #000;
+}
+
+#review-table td:nth-child(odd) {
+    background-color: #f9f9f9;
+}
+
+/* リンク風ボタンのスタイル */
+#pagination-controls button {
+    background-color: transparent; /* 背景色なし */
+    color: #0000EE; /* 青文字 */
+    border: none;
+    padding: 0;
+    text-decoration: underline; /* 下線を追加 */
+    cursor: pointer;
+    font-size: 1rem;
+    font-family: 'Baskerville', 'Georgia', serif;
+    margin: 0 10px; /* 左右のマージン */
+}
+
+#pagination-controls button:hover {
+    text-decoration: none; /* ホバー時に下線を消す */
+}
+
+#pagination-controls button:focus {
+    outline: none; /* フォーカス時のアウトラインを消す */
+}
+
+#currentPageDisplay {
+    font-size: 1rem;
+    color: #000;
+    display: inline-block;
+    margin-right: 20px;
+}
+
+#errorMessage {
+    color: red;
+    text-align: center;
+    margin-top: 20px;
+}
+
+#backToSearchSubmit {
+    display: inline-block;
+    background-color: #f6ca7a;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-family: 'Baskerville', 'Georgia', serif;
+}
+
+#backToSearchSubmit:hover {
+    background-color: #edb84d;
+}
+
+#pagination-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 20px auto;
+    width: 100%;
+    max-width: 1200px;
+}
+
+#pagination-controls div {
+    flex-grow: 1;
+    text-align: center; /* ページ表示を中央に配置 */
+}
+
+@media (max-width: 768px) {
+    #pagination-controls {
+        flex-direction: column; /* モバイルでは縦並びに */
+        text-align: center;
+    }
+
+    #pagination-controls button {
+        margin-left: 0;
+        margin-top: 10px;
+    }
+}
