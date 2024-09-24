@@ -298,7 +298,7 @@ def clean_reviews_column(filtered_reviews, column_name='content'):
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # イベント処理
-@b01_bp.route('/B01_event')
+@b01_bp.route('/B01_next_back_event', methods=['POST'])
 def next_b01():
      # 必要なセッションキー
     session_keys = ['app_id', 'start_date', 'end_date']
@@ -314,9 +314,11 @@ def next_b01():
     end_date = session['end_date']
 
     # リクエストから値を取得
-    appName = request.args.get('appName')
-    sentiment = request.args.get('sentiment')
-    keyword = request.args.get('keyword')
+    appName = request.form.get('appName')
+    sentiment = request.form.get('sentiment')
+    keyword = request.form.get('keyword')
+
+    return render_template('B01.html')
 
     # filtered_reviews=TODO 引き継ぎ  # ネガポジ判断後のdfを初期化
     # continuation_token=None  # 継続トークンの初期化
@@ -373,4 +375,4 @@ def next_b01():
     # df_all = filtered_reviews.to_json(force_ascii=False, orient='records')
     
     # データが存在する場合
-    return render_template('B01.html', appName=appName, start_date=start_date, end_date=end_date, sentiment=sentiment, keyword=keyword, reviews=df_all)
+    # return render_template('B01.html', appName=appName, start_date=start_date, end_date=end_date, sentiment=sentiment, keyword=keyword, reviews=df_all)
