@@ -341,62 +341,15 @@ def next_b01():
     appName = request.form.get('appName')
     sentiment = request.form.get('sentiment')
     keyword = request.form.get('keyword')
+    
+    # 1、次に表示する20件分のデータがIndexedDB内に保存されているかチェックする
+
+    # 該当データがIndexedDB内にある場合、IndexedDB内のデータを参照し、次ページの表示を行う
+
+    # 1のアンサー、該当ページのデータがIndexedDB内にない場合
+
+    # 期間フィルタリング
+    # 終了日から21件のデータを確保する。このとき下図のように、開始日を超えないように、開始日より過去のデータは除外する。
+    # から、やる。
 
     return render_template('B01.html', appName=appName, start_date=start_date, end_date=end_date, sentiment=sentiment, keyword=keyword)
-
-    # filtered_reviews=TODO 引き継ぎ  # ネガポジ判断後のdfを初期化
-    # continuation_token=None  # 継続トークンの初期化
-    # pd.set_option('display.max_rows', None)  # pandasの行をターミナルに全て表示
-    # pd.set_option('display.max_columns', None)
-    # pd.options.display.max_colwidth=10000
-    
-    # # レビュー1000件抽出
-    # df_scraping_reviews, continuation_token1, start_date_flag = scraping_reviews(app_id, end_date, start_date, continuation_token)
-    
-    # # レビューが空の場合のエラーメッセージ
-    # if df_scraping_reviews.empty:
-    #     errorMessage_list = "条件に一致するレビューが見つかりませんでした"
-    #     return render_template('B01.html', errorMessage_list=errorMessage_list)
-
-    # start = 0  # 21件確保の始点
-    # end = 21  # 21件確保の終点
-        
-    # # 指定された期間内のレビューが見つかるまで繰り返す
-    # while len(filtered_reviews) < 21:
-    #     # レビュー21件確保
-    #     df_21_reviews, start, end, continuation_token1 = secured_21_reviews(
-    #         df_scraping_reviews, continuation_token1, start, end, start_date_flag, app_id, start_date, end_date)
-
-    #     # レビュー21件確保できない場合
-    #     if df_21_reviews.empty:
-    #         break
-        
-    #     # キーワード指定
-    #     if keyword != 'なし':
-    #         df_21_reviews = filterling_keyword(df_21_reviews, keyword)
-            
-    #         # キーワードフィルタリングの結果、レビューが0件になった場合
-    #         if df_21_reviews.empty:
-    #             errorMessage_list = "条件に一致するレビューが見つかりませんでした"
-    #             return render_template('B01.html',appName=appName, start_date=start_date, end_date=end_date, sentiment=sentiment, keyword=keyword, errorMessage_list=errorMessage_list)
-
-    #     # ネガポジフィルタリング
-    #     filtered_reviews = pd.concat([filtered_reviews, filter_reviews_by_sentiment(df_21_reviews, sentiment)], ignore_index=True)
-
-    # # 要約翻訳
-    # filtered_reviews = process_reviews(filtered_reviews)
-    
-    
-    # # データが存在しない場合
-    # if filtered_reviews.empty:
-    #     errorMessage_list = "条件に一致するレビューが見つかりませんでした"
-    #     return render_template('B01.html', errorMessage_list=errorMessage_list)
-    
-    # filtered_reviews['at'] = pd.to_datetime(filtered_reviews['at']).dt.strftime('%Y/%m/%d %H:%M')
-    # print(filtered_reviews) 
-
-    # # json変換
-    # df_all = filtered_reviews.to_json(force_ascii=False, orient='records')
-    
-    # データが存在する場合
-    # return render_template('B01.html', appName=appName, start_date=start_date, end_date=end_date, sentiment=sentiment, keyword=keyword, reviews=df_all)

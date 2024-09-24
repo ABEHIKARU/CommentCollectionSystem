@@ -181,15 +181,37 @@ function displayReviews() {
         })
         .catch(error => console.error("Database error:", error));
 }
-document.querySelector(".nextpageButton").addEventListener('click', () => {
+
+// IndexedDBのデータをチェックする関数
+async function checkIndexedDBData() {
+    try {
+        const db = await openDatabase();
+        const data = await getAllDataFromIndexedDB(db);
+        return data.length >= 20;
+    } catch (error) {
+        console.error("IndexedDBのデータ取得エラー: ", error);
+        return false;
+    }
+}
+
+document.querySelector(".nextpageButton").addEventListener('click', async () => {
     const totalPages = Math.ceil(totalReviews / itemsPerPage);
     if (currentPage < totalPages) {
-        currentSPage++;
-        displayReviews();
+        // IndexedDB内に次のデータが存在するかを確認
+        const isDataAvailable = await checkIndexedDBData();
+
+        if (isDataAvailable) {
+            currentPage++;
+            displayReviews();  // データがある場合のみ次のページを表示
+        } 
+        else{
+            console.error("補充処理を行う");
+        return false;
+        }
       }
 });
 
-document.querySelector(".backppageButton").addEventListener('click', () => {
+document.querySelector(".backpageButton").addEventListener('click', () => {
     if (currentPage > 1) {
         currentPage--;
         displayReviews();
