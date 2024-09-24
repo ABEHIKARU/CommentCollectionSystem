@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, session
+from flask import Blueprint, render_template, session, request
 from google_play_scraper import search, Sort, reviews
 import pandas as pd
 from controller.B02 import filter_reviews_by_sentiment  # B02からフィルタリング関数をインポート
@@ -262,7 +262,7 @@ def filterling_keyword(df_21_reviews, keyword):
 @b01_bp.route('/B01_event')
 def next_b01():
      # 必要なセッションキー
-    session_keys = ['app_id', 'start_date', 'end_date', 'flag']
+    session_keys = ['app_id', 'start_date', 'end_date']
     
     # セッションキーのチェック
     if not check_session_keys(session_keys):
@@ -273,18 +273,11 @@ def next_b01():
     app_id = session['app_id']
     start_date = session['start_date']
     end_date = session['end_date']
-    flag = session['flag']
-    keyword = session['keyword']
-    
-    # 指定キーワードがNoneだった場合、「なし」に変換
-    if keyword is None:
-        keyword="なし"
 
-    # # アプリ名の取得
-    # appName = get_app_name(app_id)
-
-    # # ネガポジ種別フラグの文字列化
-    # sentiment = convert_sentiment_flag(flag)
+    # リクエストから値を取得
+    appName = request.args.get('appName')
+    sentiment = request.args.get('sentiment')
+    keyword = request.args.get('keyword')
 
     # filtered_reviews=TODO 引き継ぎ  # ネガポジ判断後のdfを初期化
     # continuation_token=None  # 継続トークンの初期化
@@ -304,26 +297,26 @@ def next_b01():
     # end = 21  # 21件確保の終点
         
     # # 指定された期間内のレビューが見つかるまで繰り返す
-    while len(filtered_reviews) < 21:
-        # レビュー21件確保
-        df_21_reviews, start, end, continuation_token1 = secured_21_reviews(
-            df_scraping_reviews, continuation_token1, start, end, start_date_flag, app_id, start_date, end_date)
+    # while len(filtered_reviews) < 21:
+    #     # レビュー21件確保
+    #     df_21_reviews, start, end, continuation_token1 = secured_21_reviews(
+    #         df_scraping_reviews, continuation_token1, start, end, start_date_flag, app_id, start_date, end_date)
 
-        # レビュー21件確保できない場合
-        if df_21_reviews.empty:
-            break
+    #     # レビュー21件確保できない場合
+    #     if df_21_reviews.empty:
+    #         break
         
-        # キーワード指定
-        if keyword != 'なし':
-            df_21_reviews = filterling_keyword(df_21_reviews, keyword)
+    #     # キーワード指定
+    #     if keyword != 'なし':
+    #         df_21_reviews = filterling_keyword(df_21_reviews, keyword)
             
-            # キーワードフィルタリングの結果、レビューが0件になった場合
-            if df_21_reviews.empty:
-                errorMessage_list = "条件に一致するレビューが見つかりませんでした"
-                return render_template('B01.html',appName=appName, start_date=start_date, end_date=end_date, sentiment=sentiment, keyword=keyword, errorMessage_list=errorMessage_list)
+    #         # キーワードフィルタリングの結果、レビューが0件になった場合
+    #         if df_21_reviews.empty:
+    #             errorMessage_list = "条件に一致するレビューが見つかりませんでした"
+    #             return render_template('B01.html',appName=appName, start_date=start_date, end_date=end_date, sentiment=sentiment, keyword=keyword, errorMessage_list=errorMessage_list)
 
-        # ネガポジフィルタリング
-        filtered_reviews = pd.concat([filtered_reviews, filter_reviews_by_sentiment(df_21_reviews, sentiment)], ignore_index=True)
+    #     # ネガポジフィルタリング
+    #     filtered_reviews = pd.concat([filtered_reviews, filter_reviews_by_sentiment(df_21_reviews, sentiment)], ignore_index=True)
 
     # # 要約翻訳
     # filtered_reviews = process_reviews(filtered_reviews)
@@ -340,5 +333,5 @@ def next_b01():
     # # json変換
     # df_all = filtered_reviews.to_json(force_ascii=False, orient='records')
     
-    # # データが存在する場合
-    # return render_template('B01.html', appName=appName, start_date=start_date, end_date=end_date, sentiment=sentiment, keyword=keyword, reviews=df_all)
+    # データが存在する場合
+    return render_template('B01.html', appName=appName, start_date=start_date, end_date=end_date, sentiment=sentiment, keyword=keyword, reviews=df_all)
