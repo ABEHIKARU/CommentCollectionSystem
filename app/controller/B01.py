@@ -5,6 +5,7 @@ from controller.B02 import filter_reviews_by_sentiment  # B02からフィルタ�
 from controller.B03 import process_reviews  
 from datetime import datetime
 import json
+import re
 
 b01_bp = Blueprint('b01_bp', __name__)
 
@@ -90,10 +91,16 @@ def show_b01():
     # json変換
     # df_all = filtered_reviews.to_json(force_ascii=False, orient='records')
     # DataFrameを一旦辞書形式に変換し、json.dumpsでエンコード
-    df_dict = filtered_reviews.to_dict(orient='records')
+    # df_dict = filtered_reviews.to_dict(orient='records')
 
-    # json.dumpsでASCII以外の文字も含めて出力
-    df_all = json.dumps(df_dict, ensure_ascii=False)
+    # # json.dumpsでASCII以外の文字も含めて出力
+    # df_all = json.dumps(df_dict, ensure_ascii=False)
+    
+    # JSONに変換する前に文字列列をクリーンアップ
+    cleaned_reviews = clean_reviews_column(filtered_reviews, column_name='content')
+
+    # クリーンアップ後のデータフレームをJSONに変換 (ASCII以外の文字も含めて出力)
+    df_all = json.dumps(cleaned_reviews.to_dict(orient='records'), ensure_ascii=False)
     # データが存在する場合
     return render_template('B01.html', appName=appName, start_date=start_date, end_date=end_date, sentiment=sentiment, keyword=keyword, reviews=df_all)
     
@@ -214,6 +221,33 @@ def filterling_keyword(df_21_reviews, keyword):
     df_21_reviews = df_21_reviews[df_21_reviews['content'].str.contains(keyword, case=False, na=False)]
     return df_21_reviews
 
+# JSON文字列から無効な文字を削除する関数
+def clean_invalid_json_chars(json_string):
+    """
+    JSON文字列から無効な文字を削除し、正しいJSON文字列に整形する関数。
+    絵文字、不可視文字、制御文字を削除し、パースエラーを防ぐ。
+    """
+    # Unicode制御文字、不可視文字、絵文字を削除
+    json_string = re.sub(r'[\u0000-\u001F\u007F-\u009F]', '', json_string)  # 制御文字削除
+    json_string = re.sub(r'[\u200B-\u200D\uFEFF]', '', json_string)  # ゼロ幅スペースなど不可視文字削除
+    json_string = re.sub(r'[\U0001F600-\U0001F64F\U0001F300-\U0001F5FF]', '', json_string)  # 絵文字削除
+
+    # JSONに不正なエスケープシーケンス（バックスラッシュ）を修正
+    json_string = json_string.replace('\\', '\\\\')  # バックスラッシュのエスケープ
+
+    # 連続する無効な文字列の削除（任意で追加のルールを入れる）
+    json_string = re.sub(r'[!！?？]{2,}', '', json_string)  # 繰り返しの感嘆符や疑問符を削除
+    json_string = re.sub(r'[。、]{2,}', '。', json_string)  # 句読点の連続を1つに
+
+    return json_string
+
+# DataFrameからJSON出力する前に無効な文字をクリーンアップ
+def clean_reviews_column(filtered_reviews, column_name='content'):
+    """
+    レビューデータフレーム内の指定された列の文字列をクリーンアップする関数
+    """
+    filtered_reviews[column_name] = filtered_reviews[column_name].apply(clean_invalid_json_chars)
+    return filtered_reviews
 # def scraping_reviews(app_id, end_date, start_date, continuation_token):
 #     """レビューを抽出する"""
 #     df_M = pd.DataFrame()  # 全てのレビューを格納するためのデータフレーム
