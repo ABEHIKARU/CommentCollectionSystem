@@ -21,7 +21,10 @@ def review_search():
         keyword = request.form.get('keyword', '').strip()
 
         # 未入力チェック,文字数チェック,無効な文字チェック
-        if not url or len(url) > 2083 or re.search(r'[<>{}|\^~\[\] ]', url):
+        # invalid_chars = r'[<>{}|\^~\[\]#%"\' ]'
+        # invalid_chars = r'[<>{}|\^~\[\]#%"\'\\ ]'
+        invalid_chars = r'[ <>{}|\\^~[\]#%"\'/;=@]'
+        if not url or len(url) > 2083 or re.search(invalid_chars, url):
             flash("URLを正しく入力してください")
             return redirect(url_for('a01_bp.review_search'))
         
