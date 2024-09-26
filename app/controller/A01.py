@@ -16,29 +16,52 @@ def review_search():
         url = request.form.get('urlInput', '').strip()
         start_date = request.form.get('startDate').replace('-', '/')
         end_date = request.form.get('endDate').replace('-', '/')
-        positive_opinion = 'positiveOpinion' in request.form
-        negative_opinion = 'negativeOpinion' in request.form
+        positive_opinion = 'positiveOpinion' in request.form #真偽値で取得
+        negative_opinion = 'negativeOpinion' in request.form #真偽値で取得
         keyword = request.form.get('keyword', '').strip()
 
-        # 未入力チェック,文字数チェック,無効な文字チェック
-        # invalid_chars = r'[<>{}|\^~\[\]#%"\' ]'
-        # invalid_chars = r'[<>{}|\^~\[\]#%"\'\\ ]'
-        # invalid_chars = r'[ <>{}|\\^~[\]#%"\'/;=@]'
-        # invalid_chars = r'[ <>{}|\\^~[\]#%"\'/]'
-        invalid_chars = r'[ <>{}|\\^~\[\]#%"\']'
-        if not url or len(url) > 2083 or re.search(invalid_chars, url):
+        # # 未入力チェック,文字数チェック,無効な文字チェック
+        # invalid_chars = r'[ <>{}|\\^~\[\]#%"\']'
+        # if not url or len(url) > 2083 or re.search(invalid_chars, url):
+        #     flash("URLを正しく入力してください")
+        #     return redirect(url_for('a01_bp.review_search'))
+        
+        # # 正規表現パターンでURLを検証し、app_idを抽出
+        # google_play_pattern = r'^(https?://)?play\.google\.com/store/apps/details\?id=([a-zA-Z0-9._-]+)(&[a-zA-Z0-9._=&-]*)?$'
+        # match = re.match(google_play_pattern, url)
+        # if match:
+        #     app_id = match.group(2)  # app_idを抽出
+        # else:
+        #     flash("入力されたURLはシステム対象外です")
+        #     return redirect(url_for('a01_bp.review_search'))
+        
+        # URLのチェック
+        if not url:
             flash("URLを正しく入力してください")
             return redirect(url_for('a01_bp.review_search'))
-        
-        # 正規表現パターンでURLを検証し、app_idを抽出
-        google_play_pattern = r'^(https?://)?play\.google\.com/store/apps/details\?id=([a-zA-Z0-9._-]+)(&[a-zA-Z0-9._=&-]*)?$'
-        match = re.match(google_play_pattern, url)
-        if match:
-            app_id = match.group(2)  # app_idを抽出
         else:
-            flash("入力されたURLはシステム対象外です")
-            return redirect(url_for('a01_bp.review_search'))
-        
+            # 文字数チェック
+            print(f"取得したURL: {url} (長さ: {len(url)})")  # デバッグ用
+            if len(url) > 2083:
+                flash("URLを正しく入力してください")
+                return redirect(url_for('a01_bp.review_search'))
+            else:
+                # 無効な文字
+                invalid_chars = r'[ <>{}|\\^~\[\]#%"\']'
+                # 無効な文字チェック
+                if re.search(invalid_chars, url):
+                    flash("URLを正しく入力してください")
+                    return redirect(url_for('a01_bp.review_search'))
+                else:
+                    # 正規表現パターンでURLを検証し、app_idを抽出
+                    google_play_pattern = r'^(https?://)?play\.google\.com/store/apps/details\?id=([a-zA-Z0-9._-]+)(&[a-zA-Z0-9._=&-]*)?$'
+                    match = re.match(google_play_pattern, url)
+                    if match:
+                        app_id = match.group(2)  # app_idを抽出
+                    else:
+                        flash("入力されたURLはシステム対象外です")
+                        return redirect(url_for('a01_bp.review_search'))
+
         # 期間の入力チェック
         if not start_date or not end_date:
             flash("期間を指定してください")
