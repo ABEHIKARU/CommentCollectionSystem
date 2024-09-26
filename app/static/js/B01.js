@@ -125,7 +125,7 @@ function displayReviews() {
                     const reviewTable = document.querySelector('#review-table tbody');  // 表のtbody要素を取得
                     reviewTable.innerHTML = '';  // 表の内容をクリア
                     const totalReviews = data.length;  // 全体のレビュー件数
-                    const totalPages = Math.ceil(totalReviews / itemsPerPage);  // 全ページ数を計算
+                    // const totalPages = Math.ceil(totalReviews / itemsPerPage);  // 全ページ数を計算
 
                     // 表示するレビューの開始と終了インデックスを計算
                     const start = (currentPage - 1) * itemsPerPage;
@@ -194,65 +194,14 @@ async function checkIndexedDBData() {
     }
 }
 
-// B01.htmlからパラメータを取得
-const app_id = "{{ app_id }}";
-const start_date = "{{ start_date }}";
-const end_date = "{{ end_date }}";
-const sentiment = "{{ sentiment }}";
-const keyword = "{{ keyword }}";
 
-// ここから合っているか確認
 document.querySelector(".nextpageButton").addEventListener('click', async () => {
-    const totalPages = Math.ceil(totalReviews / itemsPerPage);
-    if (currentPage < totalPages) {
-        // IndexedDB内に次のデータが存在するかを確認
-        const isDataAvailable = await checkIndexedDBData();
-
-        if (isDataAvailable) {
-            currentPage++;
-            displayReviews();  // データがある場合のみ次のページを表示
-        } 
-        else{
-            console.error("補充処理を行う");
-// サーバーからレビューを取得し、データを補充
-try {
-    const response = await fetch('/fetch-reviews', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            app_id: app_id,
-            start_date: start_date,
-            end_date: end_date,
-            sentiment: sentiment,
-            keyword: keyword
-        })
-    });
-
-    if (!response.ok) {
-        throw new Error('サーバーからレビューを取得できませんでした。');
-    }
-
-    const reviews = await response.json();
-
-    // サーバーから取得したデータをIndexedDBに保存
-    const db = await openDatabase();
-    for (let review of reviews) {
-        const convertedReview = convertReviewData(review);
-        await saveDataToIndexedDB(db, convertedReview);
-    }
-
-    // データ補充後、次のページを表示
-    currentPage++;
-    displayReviews();
-} catch (error) {
-    console.error("レビュー補充エラー: ", error);
-    displayErrorMessage('レビューの取得に失敗しました。');
-}
-      }
+    if (currentPage < 1) {
+        currentPage++;
+        displayReviews();  // データがある場合のみ次のページを表示
     }
 });
+
 
 document.querySelector(".backpageButton").addEventListener('click', () => {
     if (currentPage > 1) {

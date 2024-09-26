@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, session, request
+from flask import Blueprint, request, render_template, jsonify, session
 from google_play_scraper import search, Sort, reviews
 import pandas as pd
 from controller.B02 import filter_reviews_by_sentiment  # B02からフィルタリング関数をインポート
@@ -324,28 +324,8 @@ def clean_reviews_column(filtered_reviews, column_name='content'):
 # イベント処理
 @b01_bp.route('/B01_next_back_event', methods=['POST'])
 def next_b01():
-     # 必要なセッションキー
-    session_keys = ['app_id', 'start_date', 'end_date']
-    
-    # セッションキーのチェック
-    if not check_session_keys(session_keys):
-        errorMessage_list = "データの取得に失敗しました"
-        return render_template('B01.html', errorMessage_list=errorMessage_list)
-    
-    # セッションから値取得
-    app_id = session['app_id']
-    start_date = session['start_date']
-    end_date = session['end_date']
+    return render_template('B01.html')
 
-    # リクエストから値を取得
-    appName = request.form.get('appName')
-    sentiment = request.form.get('sentiment')
-    keyword = request.form.get('keyword')
-    
-    # 次に表示する20件分のデータがIndexedDB内に保存されているかチェックする
-    # 該当データがIndexedDB内にある場合、IndexedDB内のデータを参照し、次ページの表示を行う
-    # 次に表示するデータのリクエストをJavaScript側に引き渡す
-    return render_template('B01.html', appName=appName, start_date=start_date, end_date=end_date, sentiment=sentiment, keyword=keyword, app_id=app_id)
 
     # 該当ページのデータがIndexedDB内にない場合
 
