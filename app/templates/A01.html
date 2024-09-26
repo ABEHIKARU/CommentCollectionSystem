@@ -17,6 +17,7 @@
     <form method="post" action="/A01" >
         <div class="search-container">
             <h1 id="title">レビュー検索システム</h1>
+
                 <!--エラーメッセージの表示-->
                 {% with messages = get_flashed_messages() %}
                     {% if messages %}
@@ -31,13 +32,16 @@
             <div class="instructions">
                 ✔️URLを入力してください   <span class="required">【必須】</span>
             </div>
+
             <div class="search-bar">
                 <i class="icon">&#x1F50D;</i>
                 <input type="url" id="urlInput" name="urlInput" value="" placeholder="URLを入力してください" maxlength="2083">
             </div>
+
             <div class="instructions">
                 ✔️表示するレビューの条件を指定してください
             </div>
+
             <div class="filter-box">
                 <div class="input-group">
                     <label for="startDate">期間<span class="required">【必須】</span></label>
@@ -45,6 +49,7 @@
                     <span>〜</span>
                     <input type="date" id="endDate" name="endDate">
                 </div>
+
                 <div class="checkbox-group">
                     <label for="category">種別<span class="required">【必須】</span></label>
                     <div>
@@ -56,12 +61,14 @@
                         <label for="negativeOpinion">ネガティブな意見</label>
                     </div>
                 </div>
+
                 <div class="input-group">
                     <label for="keyword">キーワード指定</label>
                     
                     <input type="text" id="keyword" name="keyword" value="" maxlength="30">
                 </div>
             </div>
+            
             <input type="submit" value="レビュー検索" class="search-button" id="searchButton" name="searchButton">
         </div>
     </form>
