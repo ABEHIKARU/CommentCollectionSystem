@@ -62,11 +62,13 @@
 
     <!-- エラーメッセージを表示するための空のdiv -->
     <div id="errorMessage"></div>
+
         <div id="pagination-controls">
+            
             <button type="submit" name="backpageButton" class="backpageButton" style="display: none;">前へ</button>
             
             <div>
-                <span id="currentPageDisplay">ページ: 1</span>
+                <span id="currentPageDisplay">ページ: {{ current_page }}</span>
             </div>
         
             <button type="submit" name="nextpageButton" class="nextpageButton" style="display: none;">次へ</button>
@@ -85,7 +87,7 @@
         window.onload = function() {
             displayReviews();
         };
-        // フォーム送信時に確認ダイアログを表示する処理
+// フォーム送信時に確認ダイアログを表示する処理
         document.getElementById('backToSearchForm').onsubmit = function(event) {
             if (document.activeElement.name === 'clearSessionButton') {
                 const confirmClear = confirm("レビュー一覧表のデータがクリアされます。よろしいですか?");
@@ -94,21 +96,6 @@
                 }
             }
         };
-        // // 「次へ」ボタンの表示・非表示を制御
-        // const nextPageButton = document.querySelector(".nextpageButton");
-        // if (totalReviews > itemsPerPage * currentPage) {
-        //     nextPageButton.style.display = 'inline';  // データがまだある場合は表示
-        // } else {
-        //     nextPageButton.style.display = 'none';  // データがない場合は非表示
-        // }
-
-        // // 「前へ」ボタンの表示・非表示を制御
-        // const backPageButton = document.querySelector(".backpageButton");
-        // if (currentPage > 1) {
-        //     backPageButton.style.display = 'inline';  // 1ページ目以外は表示
-        // } else {
-        //     backPageButton.style.display = 'none';  // 1ページ目の場合は非表示
-        // }
 
     </script>
 </body>
