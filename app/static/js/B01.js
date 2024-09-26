@@ -182,6 +182,19 @@ function displayReviews() {
         .catch(error => console.error("Database error:", error));
 }
 
+// ページ切替ボタンのクリックイベント
+document.querySelector(".nextpageButton").addEventListener('click', () => {
+    currentPage++;
+    displayReviews();
+});
+
+document.querySelector(".backpageButton").addEventListener('click', () => {
+    if (currentPage > 1) {
+        currentPage--;
+        displayReviews();
+    }
+});
+
 // IndexedDBのデータをチェックする関数
 async function checkIndexedDBData() {
     try {
@@ -193,22 +206,6 @@ async function checkIndexedDBData() {
         return false;
     }
 }
-
-
-document.querySelector(".nextpageButton").addEventListener('click', async () => {
-    if (currentPage < 1) {
-        currentPage++;
-        displayReviews();  // データがある場合のみ次のページを表示
-    }
-});
-
-
-document.querySelector(".backpageButton").addEventListener('click', () => {
-    if (currentPage > 1) {
-        currentPage--;
-        displayReviews();
-    }
-});
 
 document.addEventListener("DOMContentLoaded", function () {
 

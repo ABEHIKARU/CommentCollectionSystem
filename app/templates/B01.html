@@ -16,12 +16,12 @@
     <h1 id="title" >レビュー一覧</h1>
 
     <!-- アプリ情報のテーブル -->
-    <form method="post" action="/B01_next_back_event" id="nextPageEvent">
+<form method="post" action="/B01_next_back_event" id="nextPageEvent">
     <div>
         <table id="app-info-table">
             <tr>
                 <td>アプリ名：</td>
-                <td><input type="text" name="appName" value="{{appName}}" readonly></td>
+                <td>{{appName}}</td>
             </tr>
             <tr>
                 <td>期間：</td>
@@ -29,11 +29,11 @@
             </tr>
             <tr>
                 <td>種別：</td>
-                <td><input type="text" name="sentiment" value="{{sentiment}}" readonly></td>
+                <td>{{sentiment}}</td>
             </tr>
             <tr>
                 <td>キーワード指定：</td>
-                <td><input type="text" name="keyword" value="{{keyword}}" readonly></td>
+                <td>{{keyword}}</td>
             </tr>
         </table>
     </div>
@@ -63,18 +63,16 @@
     <!-- エラーメッセージを表示するための空のdiv -->
     <div id="errorMessage"></div>
 
-        <div id="pagination-controls">
-
-            <button type="submit" name="backpageButton" class="backpageButton" style="display: none;">前へ</button>
-            
-            <div>
-                <span id="currentPageDisplay">{{ current_page }}</span>
-            </div>
+    <div id="pagination-controls">
+        <button type="submit" id="backpageButton" name="backpageButton" class="backpageButton" style="display: none;">前へ</button>
         
-            <button type="submit" name="nextpageButton" class="nextpageButton" style="display: none;">次へ</button>
+        <div>
+            <span id="currentPageDisplay">{{ current_page }}</span>ページ目
         </div>
-        
-    </form>
+    
+        <button type="submit" id="nextpageButton" name="nextpageButton" class="nextpageButton" style="display: none;">次へ</button>
+    </div>
+</form>
     
 
 
@@ -87,6 +85,7 @@
         window.onload = function() {
             displayReviews();
         };
+
 // フォーム送信時に確認ダイアログを表示する処理
         document.getElementById('backToSearchForm').onsubmit = function(event) {
             if (document.activeElement.name === 'clearSessionButton') {
