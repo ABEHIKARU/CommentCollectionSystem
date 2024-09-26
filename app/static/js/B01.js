@@ -194,6 +194,14 @@ async function checkIndexedDBData() {
     }
 }
 
+// B01.htmlからパラメータを取得
+const app_id = "{{ app_id }}";
+const start_date = "{{ start_date }}";
+const end_date = "{{ end_date }}";
+const sentiment = "{{ sentiment }}";
+const keyword = "{{ keyword }}";
+
+// ここから合っているか確認
 document.querySelector(".nextpageButton").addEventListener('click', async () => {
     const totalPages = Math.ceil(totalReviews / itemsPerPage);
     if (currentPage < totalPages) {
@@ -206,9 +214,44 @@ document.querySelector(".nextpageButton").addEventListener('click', async () => 
         } 
         else{
             console.error("補充処理を行う");
-        return false;
-        }
+// サーバーからレビューを取得し、データを補充
+try {
+    const response = await fetch('/fetch-reviews', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            app_id: app_id,
+            start_date: start_date,
+            end_date: end_date,
+            sentiment: sentiment,
+            keyword: keyword
+        })
+    });
+
+    if (!response.ok) {
+        throw new Error('サーバーからレビューを取得できませんでした。');
+    }
+
+    const reviews = await response.json();
+
+    // サーバーから取得したデータをIndexedDBに保存
+    const db = await openDatabase();
+    for (let review of reviews) {
+        const convertedReview = convertReviewData(review);
+        await saveDataToIndexedDB(db, convertedReview);
+    }
+
+    // データ補充後、次のページを表示
+    currentPage++;
+    displayReviews();
+} catch (error) {
+    console.error("レビュー補充エラー: ", error);
+    displayErrorMessage('レビューの取得に失敗しました。');
+}
       }
+    }
 });
 
 document.querySelector(".backpageButton").addEventListener('click', () => {
@@ -238,19 +281,3 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 });
-
-// // 「次へ」ボタンのクリックイベントハンドラ
-// document.querySelector(".nextpageButton").addEventListener("click", function (event) {
-//     event.preventDefault();  // デフォルトのフォーム動作を防ぐ
-//     currentPage++;  // ページを進める
-//     displayReviews();  // 次のページのレビューを表示
-// });
-
-// // 「前へ」ボタンのクリックイベントハンドラ
-// document.querySelector(".backpageButton").addEventListener("click", function (event) {
-//     event.preventDefault();  // デフォルトのフォーム動作を防ぐ
-//     if (currentPage > 1) {
-//         currentPage--;  // ページを戻す
-//         displayReviews();  // 前のページのレビューを表示
-//     }
-// });

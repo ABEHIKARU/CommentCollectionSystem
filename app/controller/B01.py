@@ -343,13 +343,12 @@ def next_b01():
     keyword = request.form.get('keyword')
     
     # 次に表示する20件分のデータがIndexedDB内に保存されているかチェックする
-
     # 該当データがIndexedDB内にある場合、IndexedDB内のデータを参照し、次ページの表示を行う
+    # 次に表示するデータのリクエストをJavaScript側に引き渡す
+    return render_template('B01.html', appName=appName, start_date=start_date, end_date=end_date, sentiment=sentiment, keyword=keyword, app_id=app_id)
 
     # 該当ページのデータがIndexedDB内にない場合
 
     # 期間フィルタリング
     # 終了日から21件のデータを確保する。このとき下図のように、開始日を超えないように、開始日より過去のデータは除外する。
     # から、やる。
-
-    return render_template('B01.html', appName=appName, start_date=start_date, end_date=end_date, sentiment=sentiment, keyword=keyword)
