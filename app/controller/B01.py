@@ -1,4 +1,4 @@
-from flask import Blueprint, request, render_template, jsonify, session
+from flask import Blueprint, request, render_template, session
 from google_play_scraper import search, Sort, reviews
 import pandas as pd
 from controller.B02 import filter_reviews_by_sentiment  # B02からフィルタリング関数をインポート
@@ -324,7 +324,26 @@ def clean_reviews_column(filtered_reviews, column_name='content'):
 # イベント処理
 @b01_bp.route('/B01_next_back_event', methods=['POST'])
 def next_b01():
-    return render_template('B01.html')
+    # 現在のページをセッションから取得
+    current_page = session.get('current_page', 1)
+
+    # ボタンがどちらかを確認
+    if 'nextpageButton' in request.form:
+        current_page += 1  # 次のページへ
+    elif 'backpageButton' in request.form:
+        current_page -= 1  # 前のページへ
+
+    # ページ範囲の制御（例えば、1ページ目より小さくならないように）
+    current_page = max(1, current_page)
+
+    # セッションに現在のページを保存
+    session['current_page'] = current_page
+
+    # レビューを取得するための処理を追加（ここは必要に応じて変更）
+    # 例えば、データベースからレビューを取得し、テンプレートに渡すなど
+    # ここで必要なレビューを取得する関数を呼び出す
+
+    return render_template('B01.html', current_page=current_page)
 
 
     # 該当ページのデータがIndexedDB内にない場合
