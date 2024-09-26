@@ -62,11 +62,13 @@
 
     <!-- エラーメッセージを表示するための空のdiv -->
     <div id="errorMessage"></div>
+
         <div id="pagination-controls">
+            
             <button type="submit" name="backpageButton" class="backpageButton" style="display: none;">前へ</button>
             
             <div>
-                <span id="currentPageDisplay">ページ: 1</span>
+                <span id="currentPageDisplay">ページ: {{ current_page }}</span>
             </div>
         
             <button type="submit" name="nextpageButton" class="nextpageButton" style="display: none;">次へ</button>
@@ -85,74 +87,7 @@
         window.onload = function() {
             displayReviews();
         };
-
-        // 非同期通信でデータを取得・送信
-        document.querySelector(".nextpageButton").addEventListener('click', async (event) => {
-            event.preventDefault();  // デフォルトのフォーム送信を防止
-
-            // フォームからデータを取得
-            const formData = new FormData(document.getElementById("nextPageEvent"));
-            const requestData = {
-                appName: formData.get("appName"),
-                start_date: "{{ start_date }}",
-                end_date: "{{ end_date }}",
-                sentiment: formData.get("sentiment"),
-                keyword: formData.get("keyword")
-            };
-
-            try {
-                // 非同期通信（POSTリクエスト）でデータを送信
-                const response = await fetch('/B01_next_back_event', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(requestData)
-                });
-
-                // サーバーからのレスポンスを確認
-                if (!response.ok) {
-                    throw new Error("サーバーとの通信エラー");
-                }
-
-                const data = await response.json();
-                updateReviewTable(data.reviews);  // レビューを更新
-            } catch (error) {
-                console.error("エラーが発生しました:", error);
-                displayErrorMessage("レビューの取得に失敗しました。");
-            }
-        });
-
-        // レビューをテーブルに表示する関数
-        function displayReviews() {
-            updateReviewTable(reviews);  // 初回ロード時のレビューを表示
-        }
-
-        // レビュー表示用のテーブル更新関数
-        function updateReviewTable(reviews) {
-            const tbody = document.querySelector("#review-table tbody");
-            tbody.innerHTML = '';  // 既存のテーブル内容をクリア
-            reviews.forEach((review, index) => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${index + 1}</td>
-                    <td>${review.posted_at}</td>
-                    <td>${review.sentiment}</td>
-                    <td>${review.summary}</td>
-                    <td>${review.original}</td>
-                `;
-                tbody.appendChild(row);
-            });
-        }
-
-        // エラーメッセージ表示関数
-        function displayErrorMessage(message) {
-            const errorDiv = document.getElementById('errorMessage');
-            errorDiv.textContent = message;
-            errorDiv.style.color = 'red';
-        }
-
-        // フォーム送信時に確認ダイアログを表示する処理
+// フォーム送信時に確認ダイアログを表示する処理
         document.getElementById('backToSearchForm').onsubmit = function(event) {
             if (document.activeElement.name === 'clearSessionButton') {
                 const confirmClear = confirm("レビュー一覧表のデータがクリアされます。よろしいですか?");
