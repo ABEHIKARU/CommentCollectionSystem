@@ -1,7 +1,7 @@
 from flask import Blueprint, request, render_template, session
 from google_play_scraper import search, Sort, reviews
 import pandas as pd
-from controller.B02 import filter_reviews_by_sentiment  # B02からフィルタリング関数をインポート
+from controller.B02 import filter_reviews_by_sentiment
 from controller.B03 import process_reviews  
 import json
 import re
@@ -150,11 +150,10 @@ def scraping_reviews(app_id, end_date, start_date, continuation_token):
                 continuation_token=continuation_token
             )
         except Exception as e:
-            print(f"レビューの抽出でエラーが発生: {str(e)}") #TODO リリース時には削除する
-            return df_M, continuation_token, start_date_flag
+            break
         
         if not result:
-            return df_M, continuation_token, start_date_flag 
+            break
 
         df_L = pd.DataFrame(result) # レビュー1000件をとりあえず入れておく
         df_M = pd.concat([df_M, df_L[['at', 'content']]], ignore_index=True) # 投稿日時とレビュー原文の列だけ保持
@@ -209,6 +208,10 @@ def secured_21_reviews(df_scraping_reviews, continuation_token1, start, end, sta
         df_S = pd.concat([df_S, df_scraping_reviews[start:end]], ignore_index=True)
         start += 21
         end += 21
+        
+        # 開始日発見フラグがある場合
+        if start_date_flag==True:
+            break
 
     return df_S, start, end, continuation_token1
 
