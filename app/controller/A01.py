@@ -23,7 +23,7 @@ def review_search():
             keyword = request.form.get('keyword', '').strip()  # キーワード入力
 
             # URLのチェック
-            if not url:
+            if  url == "":
                 flash("URLを正しく入力してください") 
                 return redirect(url_for('a01_bp.review_search'))
             
@@ -36,35 +36,35 @@ def review_search():
             invalid_chars = r'[ <>{}|\\^~\[\]#%"\']'
             
             # 無効な文字チェック
-            if re.search(invalid_chars, url):
+            if re.search(invalid_chars, url) is not None:
                 flash("URLを正しく入力してください")  
                 return redirect(url_for('a01_bp.review_search'))
 
             # Google Play URLの正規表現パターンを使って検証
             google_play_pattern = r'^(https?://)?play\.google\.com/store/apps/details\?id=([a-zA-Z0-9._-]+)(&[a-zA-Z0-9._=&-]*)?$'
             match = re.match(google_play_pattern, url)
-            if match:
+            if match is not None:
                 app_id = match.group(2)  # app_idを抽出
             else:
                 flash("入力されたURLはシステム対象外です")  
                 return redirect(url_for('a01_bp.review_search'))
 
             # 期間の入力チェック
-            if not start_date or not end_date:
+            if start_date == "" or end_date == "":
                 flash("期間を指定してください")  
                 return redirect(url_for('a01_bp.review_search'))
 
             # ポジティブ・ネガティブ選択チェック
-            if not positive_opinion and not negative_opinion:
+            if positive_opinion is False and negative_opinion is False:
                 flash("種別を選択してください")  
                 return redirect(url_for('a01_bp.review_search'))
 
             # ネガポジ種別フラグの設定
-            if positive_opinion and negative_opinion:
+            if positive_opinion is True and negative_opinion is True:
                 flag = 1  # 両方選択された場合
-            elif positive_opinion:
+            elif positive_opinion is True:
                 flag = 2  # ポジティブのみ選択
-            elif negative_opinion:
+            elif negative_opinion is True:
                 flag = 3  # ネガティブのみ選択
 
             # キーワードの入力チェック
@@ -88,9 +88,12 @@ def review_search():
             # エラーメッセージの表示
             flash(f"エラーが発生しました: {str(e)}")  # エラー内容を表示
             return redirect(url_for('a01_bp.review_search'))
-
-    # GETリクエスト時またはエラー時のメッセージ表示
-    return render_template('A01.html')  # GETリクエストの場合はA01.htmlを表示
+        
+    # GETリクエスト時またはエラー時の処理
+    else:
+        return render_template('A01.html')
+    # # GETリクエスト時またはエラー時のメッセージ表示
+    # return render_template('A01.html')  # GETリクエストの場合はA01.htmlを表示
 
 @a01_bp.route('/A01_clear_session_and_redirect', methods=['POST'])
 def clear_session_and_redirect():
