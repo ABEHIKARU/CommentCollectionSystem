@@ -21,7 +21,7 @@ def judge_sentiment(text):
     入力されたテキストに対して感情分析を行い、結果を返す
     """
     result = classifier(text)[0]  # classifierはリスト形式で結果を返すため、最初の要素を取得
-    sentiment = result['label']  # 感情分類の結果ラベル（'POSITIVE' または 'NEGATIVE'）を取得
+    sentiment = result['label']  # 感情分類の結果ラベル（'POSITIVE' または 'NEGATIVE'または、NEUTRAL）を取得
     
     # 結果ラベルに基づいて、ポジティブかネガティブかニュートラルを返す
     if sentiment == 'POSITIVE':
