@@ -15,7 +15,7 @@ def show_b01():
     session_keys = ['app_id', 'start_date', 'end_date', 'flag']
     
     # セッションキーのチェック
-    if not check_session_keys(session_keys):
+    if check_session_keys(session_keys)==False:
         errorMessage_list = "データの取得に失敗しました"
         return render_template('B01.html', errorMessage_list=errorMessage_list)
     
@@ -58,8 +58,7 @@ def show_b01():
     # 指定された期間内のレビューが見つかるまで繰り返す
     while len(filtered_reviews) < 21:
         # レビュー21件確保
-        df_21_reviews, start, end, continuation_token1 = secured_21_reviews(
-            df_scraping_reviews, continuation_token1, start, end, start_date_flag, app_id, start_date, end_date)
+        df_21_reviews, start, end, continuation_token1 = secured_21_reviews(df_scraping_reviews, continuation_token1, start, end, start_date_flag, app_id, start_date, end_date)
 
         # レビュー21件確保できない場合
         if df_21_reviews.empty:
@@ -137,11 +136,9 @@ def scraping_reviews(app_id, end_date, start_date, continuation_token):
     df_M = pd.DataFrame()  # 期間フィルタリング後のdfの初期化
     end_date_search = pd.to_datetime(end_date)  + pd.DateOffset(hours=23, minutes=59, seconds=59)  # 終了日をdatetime型に変換
     start_date_search = pd.to_datetime(start_date)  # 開始日をdatetime型に変換
+    start_date_flag = False # 開始日発見フラグ
 
-    while True:
-        end_date_flag = False
-        start_date_flag = False
-        
+    while True:        
         try:
             # Google Playのレビュー1000件を抽出
             result, continuation_token = reviews(
@@ -167,24 +164,31 @@ def scraping_reviews(app_id, end_date, start_date, continuation_token):
         df_M['at'] = pd.to_datetime(df_M['at'])
         
         # 終了日より過去のデータがある場合、終了日より未来のデータを削除
-        if (df_M['at']<=end_date_search).any():
+        if (df_M['at']<=end_date_search).any() ==True:
             df_M = df_M[(df_M['at'] <= end_date_search)]
-            end_date_flag=True
             
             # 開始日より未来のデータがある場合、開始日より過去のデータを削除
-            if (df_M['at']>start_date_search).any():
+            if (df_M['at']>=start_date_search).any() ==True :
                 df_M = df_M[df_M['at'] >= start_date_search]
                 start_date_flag=True
-        
+                break    
+            # 開始日より未来のデータがなく、開始日そのものがない場合(例.レビューが存在しない期間を指定した場合)
+            elif (df_M['at']>=start_date_search).any() ==False and end_date_search not in df_M['at'].values:            
+                df_M = df_M[df_M['at'] >= start_date_search]
+                start_date_flag=True
+                break  
+                    
         # 開始日がない、かつ、21件未満の場合
         if start_date_flag==False and len(df_M)<21:
             continue
         
-        # 抽出データが21件以上あり、終了日がある場合
-        if len(df_M)>=21 and end_date_flag==True:
-            # 投稿日時の形式を変更
-            df_M['at'] = df_M['at'].dt.strftime('%Y/%m/%d %H:%M')
-            return df_M, continuation_token, start_date_flag    
+        # 21件以上の場合
+        if len(df_M)>=21:
+            break
+                    
+    # 投稿日時の形式を変更
+    df_M['at'] = df_M['at'].dt.strftime('%Y/%m/%d %H:%M')       
+    return df_M, continuation_token, start_date_flag    
 
 def secured_21_reviews(df_scraping_reviews, continuation_token1, start, end, start_date_flag, app_id, start_date, end_date):
     """レビュー21件を確保する"""
