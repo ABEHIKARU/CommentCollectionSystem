@@ -98,7 +98,7 @@ def show_b01():
     
     # JSONに変換する前に文字列列をクリーンアップ
     cleaned_reviews = clean_reviews_column(filtered_reviews, column_name='content')
-
+    print(cleaned_reviews)
     # クリーンアップ後のデータフレームをJSONに変換 (ASCII以外の文字も含めて出力)
     df_all = json.dumps(cleaned_reviews.to_dict(orient='records'), ensure_ascii=False)
     # データが存在する場合
@@ -221,16 +221,69 @@ def filterling_keyword(df_21_reviews, keyword):
     return df_21_reviews
 
 # JSON文字列から無効な文字を削除する関数
+# def clean_invalid_json_chars(json_string):
+#     """
+#     JSON文字列から無効な文字を削除し、正しいJSON文字列に整形する関数。
+#     絵文字、不可視文字、制御文字を削除し、パースエラーを防ぐ。
+#     """
+#     # Unicode制御文字、不可視文字、絵文字を削除
+#     json_string = re.sub(r'[\u0000-\u001F\u007F-\u009F]', '', json_string)  # 制御文字削除
+#     json_string = re.sub(r'[\u200B-\u200D\uFEFF]', '', json_string)  # ゼロ幅スペースなど不可視文字削除
+    
+#     # すべての絵文字を削除する
+#     emoji_pattern = re.compile(
+#         "[" 
+#         "\U0001F600-\U0001F64F"  # 顔文字
+#         "\U0001F300-\U0001F5FF"  # シンボル&ピクトグラム
+#         "\U0001F680-\U0001F6FF"  # 乗り物&地図記号
+#         "\U0001F1E0-\U0001F1FF"  # 国旗
+#         "\U00002500-\U00002BEF"  # 各種記号
+#         "\U00002702-\U000027B0"  # その他記号
+#         "\U0001F918-\U0001F9E0"  # その他追加の絵文字
+#         "\U0001F90D-\U0001F9FF"  # 最近追加された絵文字
+#         "]+", 
+#         flags=re.UNICODE)
+#     json_string = emoji_pattern.sub(r'', json_string)  # 絵文字を削除
+    
+#     # # JSONに不正なエスケープシーケンス（バックスラッシュ）を修正
+#     # json_string = json_string.replace('\\', '\\\\')  # バックスラッシュのエスケープ
+#     # バックスラッシュのエスケープ
+#     json_string = re.sub(r'\\', r'\\\\', json_string)  # バックスラッシュをエスケープ
+#     json_string = re.sub(r'"', r'\\"', json_string)  # 引用符をエスケープ
+#     # 特殊な数学記号やアクセント記号を削除
+#     json_string = re.sub(r'[\u0300-\u036F\u2200-\u22FF]', '', json_string)  # アクセント記号と数学記号を削除
+    
+#     json_string = re.sub(r'[^ -~｡-ﾟ]+', '', json_string)  # ASCIIと日本語の範囲外を削除
+#     # 引用符（"）や特殊文字をエスケープ
+#     json_string = json_string.replace('"', '\\"')  # 引用符のエスケープ
+#     json_string = re.sub(r'([*#@])', r'\\\1', json_string)  # 特殊文字のエスケープ
+
+#     # 連続する無効な文字列の削除（任意で追加のルールを入れる）
+#     json_string = re.sub(r'[!！?？]{2,}', '', json_string)  # 繰り返しの感嘆符や疑問符を削除
+#     json_string = re.sub(r'[。、]{2,}', '。', json_string)  # 句読点の連続を1つに
+
+#     # 文頭の句読点や記号を削除
+#     json_string = re.sub(r'^[。、!?]+', '', json_string)  # 文頭にある句読点や感嘆符を削除
+
+#     # 文末の句読点や記号の連続を削除
+#     json_string = re.sub(r'[。、!?]+$', '', json_string)  # 文末の不要な句読点や感嘆符を削除
+    
+#     return json_string
+# JSON文字列から無効な文字を削除する関数
+
+
+import re
+import json
+
 def clean_invalid_json_chars(json_string):
     """
     JSON文字列から無効な文字を削除し、正しいJSON文字列に整形する関数。
-    絵文字、不可視文字、制御文字を削除し、パースエラーを防ぐ。
     """
-    # Unicode制御文字、不可視文字、絵文字を削除
+    # Unicode制御文字、不可視文字を削除
     json_string = re.sub(r'[\u0000-\u001F\u007F-\u009F]', '', json_string)  # 制御文字削除
     json_string = re.sub(r'[\u200B-\u200D\uFEFF]', '', json_string)  # ゼロ幅スペースなど不可視文字削除
-    
-    # すべての絵文字を削除する
+
+    # 絵文字を削除
     emoji_pattern = re.compile(
         "[" 
         "\U0001F600-\U0001F64F"  # 顔文字
@@ -244,24 +297,32 @@ def clean_invalid_json_chars(json_string):
         "]+", 
         flags=re.UNICODE)
     json_string = emoji_pattern.sub(r'', json_string)  # 絵文字を削除
-    
-    # JSONに不正なエスケープシーケンス（バックスラッシュ）を修正
-    json_string = json_string.replace('\\', '\\\\')  # バックスラッシュのエスケープ
-    
-    # 特殊な数学記号やアクセント記号を削除
-    json_string = re.sub(r'[\u0300-\u036F\u2200-\u22FF]', '', json_string)  # アクセント記号と数学記号を削除
 
-    # 連続する無効な文字列の削除（任意で追加のルールを入れる）
+    # 不正な特殊文字をエスケープ
+    json_string = re.sub(r'([*#@])', r'\\\1', json_string)
+
+    # 連続する無効な文字列の削除
     json_string = re.sub(r'[!！?？]{2,}', '', json_string)  # 繰り返しの感嘆符や疑問符を削除
     json_string = re.sub(r'[。、]{2,}', '。', json_string)  # 句読点の連続を1つに
-
-    # 文頭の句読点や記号を削除
-    json_string = re.sub(r'^[。、!?]+', '', json_string)  # 文頭にある句読点や感嘆符を削除
-
-    # 文末の句読点や記号の連続を削除
+    json_string = re.sub(r'^[。、!?]+', '', json_string)  # 文頭の句読点や感嘆符を削除
     json_string = re.sub(r'[。、!?]+$', '', json_string)  # 文末の不要な句読点や感嘆符を削除
-    
-    return json_string
+
+    # 空白をトリム
+    json_string = json_string.strip()
+
+    # JSON形式に変換を試みる
+    try:
+        # ここでjson.loadsを使ってJSONが有効か確認
+        json_data = json.loads(json_string)
+        cleaned_json_string = json.dumps(json_data, ensure_ascii=False)  # UTF-8として保存
+    except json.JSONDecodeError as e:
+        print(f"JSONデコードエラー: {e}")
+        return json_string  # エラーが発生した場合は元の文字列を返す
+
+    # 最後に、無効なJSON文字列を確認するためにデバッグ出力
+    print(f"Cleaned JSON: {cleaned_json_string}")  # デバッグ用出力
+
+    return cleaned_json_string
 
 
 # DataFrameからJSON出力する前に無効な文字をクリーンアップ
