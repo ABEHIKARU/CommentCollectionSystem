@@ -272,8 +272,6 @@ def filterling_keyword(df_21_reviews, keyword):
 # JSON文字列から無効な文字を削除する関数
 
 
-import re
-import json
 
 def clean_invalid_json_chars(json_string):
     """
