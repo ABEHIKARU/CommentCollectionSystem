@@ -3,7 +3,6 @@ from google_play_scraper import search, Sort, reviews
 import pandas as pd
 from controller.B02 import filter_reviews_by_sentiment  # B02からフィルタリング関数をインポート
 from controller.B03 import process_reviews  
-from datetime import datetime
 import json
 import re
 
@@ -39,7 +38,9 @@ def show_b01():
 
     filtered_reviews=pd.DataFrame()  # ネガポジ判断後のdfを初期化
     continuation_token=None  # 継続トークンの初期化
-    pd.set_option('display.max_rows', None)  # pandasの行をターミナルに全て表示
+
+    #TODO リリース時には削除する
+    pd.set_option('display.max_rows', None)  
     pd.set_option('display.max_columns', None)
     pd.options.display.max_colwidth=10000
     
@@ -86,7 +87,7 @@ def show_b01():
         return render_template('B01.html', errorMessage_list=errorMessage_list)
     
     filtered_reviews['at'] = pd.to_datetime(filtered_reviews['at']).dt.strftime('%Y/%m/%d %H:%M')
-    print(filtered_reviews) 
+    print(filtered_reviews) #TODO リリース時には削除する
 
     # json変換
     # df_all = filtered_reviews.to_json(force_ascii=False, orient='records')
@@ -152,7 +153,7 @@ def scraping_reviews(app_id, end_date, start_date, continuation_token):
                 continuation_token=continuation_token
             )
         except Exception as e:
-            print(f"レビューの抽出でエラーが発生: {str(e)}")
+            print(f"レビューの抽出でエラーが発生: {str(e)}") #TODO リリース時には削除する
             return df_M, continuation_token, start_date_flag
         
         if not result:
@@ -184,15 +185,6 @@ def scraping_reviews(app_id, end_date, start_date, continuation_token):
             # 投稿日時の形式を変更
             df_M['at'] = df_M['at'].dt.strftime('%Y/%m/%d %H:%M')
             return df_M, continuation_token, start_date_flag    
-
-        # # 期間内のレビューが見つかった場合、フラグをセット
-        # if not df_L_filtered.empty:
-        #     start_date_flag = True
-        #     # TODO 終了日で判断するべきでは？
-
-        # # continuation_tokenが無ければ終了 TODO Noneにはならないのでは？
-        # if continuation_token is None or (df_L['at'].min() < start_date_search):
-        #     break
 
 def secured_21_reviews(df_scraping_reviews, continuation_token1, start, end, start_date_flag, app_id, start_date, end_date):
     """レビュー21件を確保する"""
@@ -272,53 +264,6 @@ def clean_reviews_column(filtered_reviews, column_name='content'):
     """
     filtered_reviews[column_name] = filtered_reviews[column_name].apply(clean_invalid_json_chars)
     return filtered_reviews
-# def scraping_reviews(app_id, end_date, start_date, continuation_token):
-#     """レビューを抽出する"""
-#     df_M = pd.DataFrame()  # 全てのレビューを格納するためのデータフレーム
-#     end_date_search = pd.to_datetime(end_date)  # 終了日をdatetime型に変換
-#     start_date_search = pd.to_datetime(start_date)  # 開始日をdatetime型に変換
-
-#     while True:
-#         start_date_flag = False
-        
-#         # Google Playのレビュー1000件を抽出
-#         result, continuation_token = reviews(
-#             app_id, 
-#             lang='ja',
-#             country='jp',
-#             sort=Sort.NEWEST,  # 新しい順に抽出
-#             count=1000,  # 1000件までのレビューを取得
-#             continuation_token=continuation_token
-#         )
-        
-#         # レビューが取得できなかった場合、現在のデータフレームとトークンを返す
-#         if not result:
-#             return df_M, continuation_token, False
-
-#         df_L = pd.DataFrame(result)
-
-#         # 'at' 列を datetime 型に変換する
-#         df_L['at'] = pd.to_datetime(df_L['at'])
-
-#         # 指定された期間内のレビューのみをフィルタリング
-#         df_L_filtered = df_L[(df_L['at'] >= start_date_search) & (df_L['at'] <= end_date_search)]
-#         # TODO 期間フィルタリングは別個で関数作った方が良くないか？
-        
-#         # フィルタリングした結果をマスターデータフレームに追加
-#         df_M = pd.concat([df_M, df_L_filtered[['at', 'content']]], ignore_index=True)
-#         # 'at'列の日付を '%Y/%m/%d %H:%M' 形式に変換
-#         df_M['at'] = df_M['at'].dt.strftime('%Y/%m/%d %H:%M')
-#         # 期間内のレビューが見つかった場合、フラグをセット
-#         if not df_L_filtered.empty:
-#             start_date_flag = True
-#             # TODO 終了日で判断するべきでは？
-
-#         # continuation_tokenが無ければ終了 TODO Noneにはならないのでは？
-#         if continuation_token is None or (df_L['at'].min() < start_date_search):
-#             break
-        
-#     return df_M, continuation_token, start_date_flag
-
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # イベント処理

@@ -54,6 +54,7 @@ h1 {
 
 /* リンク風ボタンのスタイル */
 #pagination-controls button {
+    pointer-events: auto; /* クリックを許可 */
     background-color: transparent; /* 背景色なし */
     color: #0000EE; /* 青文字 */
     border: none;
