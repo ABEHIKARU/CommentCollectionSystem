@@ -273,6 +273,7 @@ def filterling_keyword(df_21_reviews, keyword):
 
 
 
+
 def clean_invalid_json_chars(json_string):
     """
     JSON文字列から無効な文字を削除し、正しいJSON文字列に整形する関数。
@@ -308,19 +309,11 @@ def clean_invalid_json_chars(json_string):
     # 空白をトリム
     json_string = json_string.strip()
 
-    # JSON形式に変換を試みる
-    try:
-        # ここでjson.loadsを使ってJSONが有効か確認
-        json_data = json.loads(json_string)
-        cleaned_json_string = json.dumps(json_data, ensure_ascii=False)  # UTF-8として保存
-    except json.JSONDecodeError as e:
-        print(f"JSONデコードエラー: {e}")
-        return json_string  # エラーが発生した場合は元の文字列を返す
+    # デバッグ用出力
+    print(f"Cleaned JSON String: {json_string}")  # デバッグ用出力
 
-    # 最後に、無効なJSON文字列を確認するためにデバッグ出力
-    print(f"Cleaned JSON: {cleaned_json_string}")  # デバッグ用出力
+    return json_string
 
-    return cleaned_json_string
 
 
 # DataFrameからJSON出力する前に無効な文字をクリーンアップ
