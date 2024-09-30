@@ -101,6 +101,7 @@ def show_b01():
     print(cleaned_reviews)
     # クリーンアップ後のデータフレームをJSONに変換 (ASCII以外の文字も含めて出力)
     df_all = json.dumps(cleaned_reviews.to_dict(orient='records'), ensure_ascii=False)
+    
     # データが存在する場合
     return render_template('B01.html', appName=appName, start_date=start_date, end_date=end_date, sentiment=sentiment, keyword=keyword, reviews=df_all)
     
