@@ -182,31 +182,6 @@ function displayReviews() {
         .catch(error => console.error("Database error:", error));
 }
 
-// ページ切替ボタンのクリックイベント
-document.querySelector(".nextpageButton").addEventListener('click', () => {
-    currentPage++;
-    displayReviews();
-});
-
-document.querySelector(".backpageButton").addEventListener('click', () => {
-    if (currentPage > 1) {
-        currentPage--;
-        displayReviews();
-    }
-});
-
-// IndexedDBのデータをチェックする関数
-async function checkIndexedDBData() {
-    try {
-        const db = await openDatabase();
-        const data = await getAllDataFromIndexedDB(db);
-        return data.length >= 20;
-    } catch (error) {
-        console.error("IndexedDBのデータ取得エラー: ", error);
-        return false;
-    }
-}
-
 document.addEventListener("DOMContentLoaded", function () {
 
     // beforeunload イベントリスナー
@@ -227,3 +202,80 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 });
+
+// IndexedDBのデータをチェックする関数
+async function checkIndexedDBData() {
+    try {
+        const db = await openDatabase();
+        const data = await getAllDataFromIndexedDB(db);
+
+        if (data.length > (currentPage * itemsPerPage) + 1){
+            return true;
+        } else {
+            console.log(`データ数不足`);
+            return false;
+        }
+    } catch (error) {
+        console.error("IndexedDBのデータ取得エラー: ", error);
+        return false;
+    }
+}
+
+// サーバーからレビューを取得する関数
+function fetchMoreReviewsFromServer() {
+    fetch('/fetch-more-reviews', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ page: currentPage }),  // 現在のページをサーバーに送信
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            console.error('サーバーエラー: ', data.error);
+        } else {
+            // サーバーから取得したレビューをIndexedDBに保存し、表示を更新
+            data.reviews.forEach(review => {
+                const convertedReview = convertReviewData(review);
+                saveDataToIndexedDB(db, convertedReview);  // 各レビューを保存
+            });
+            displayReviews();  // 新しいレビューを表示
+        }
+    })
+    .catch(error => console.error('サーバーからのデータ取得エラー: ', error));
+}
+// ページ切替ボタンのクリックイベント
+document.addEventListener("DOMContentLoaded", function() {
+    const nextPageButton = document.querySelector("#nextpageButton");
+    const backPageButton = document.querySelector("#backpageButton");
+
+    if (nextPageButton) {
+        nextPageButton.addEventListener('click', async () => {
+           // IndexedDB内のデータ数をチェックする
+           const isDataAvailable = await checkIndexedDBData();
+           if (isDataAvailable) {
+            // 次ページ分もDB保存内のデータを用いて表示できる場合
+               currentPage++;
+               displayReviews();
+           } else {
+               // サーバー側でレビュー補充処理を行う
+               console.log('レビュー補充');
+               // ここにサーバーにデータリクエストを送る処理を追加
+               fetchMoreReviewsFromServer().then(() => {
+                currentPage++;  // ここでインクリメント
+            });
+           }
+        });
+    }
+
+    if (backPageButton) {
+        backPageButton.addEventListener('click', () => {
+            if (currentPage > 1) {
+                currentPage--;
+                displayReviews();
+            }
+        });
+    }
+});
+
