@@ -113,9 +113,6 @@ function displayErrorMessage(message) {
     errorMessageDiv.style.color = 'red';
 }
 
-let currentPage = 1;  // 現在のページ番号
-const itemsPerPage = 20;  // 1ページに表示するレビューの件数
-
 // IndexedDBからデータを取得し、ページごとに表示
 function displayReviews() {
     openDatabase()
@@ -125,7 +122,10 @@ function displayReviews() {
                     const reviewTable = document.querySelector('#review-table tbody');  // 表のtbody要素を取得
                     reviewTable.innerHTML = '';  // 表の内容をクリア
                     const totalReviews = data.length;  // 全体のレビュー件数
-                    // const totalPages = Math.ceil(totalReviews / itemsPerPage);  // 全ページ数を計算
+
+                    // hidden inputからcurrentPageの値を取得
+                    let currentPage = parseInt(document.getElementById('currentPage').value, 10) || 1;
+                    const itemsPerPage = 20;  // 1ページに表示するレビューの件数
 
                     // 表示するレビューの開始と終了インデックスを計算
                     const start = (currentPage - 1) * itemsPerPage;
@@ -203,79 +203,92 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
-// IndexedDBのデータをチェックする関数
-async function checkIndexedDBData() {
-    try {
-        const db = await openDatabase();
-        const data = await getAllDataFromIndexedDB(db);
+function displaybackReviews() {
+    openDatabase()
+        .then(db => {
+            getAllDataFromIndexedDB(db)
+                .then(data => {
+                    const reviewTable = document.querySelector('#review-table tbody');  // 表のtbody要素を取得
+                    reviewTable.innerHTML = '';  // 表の内容をクリア
+                    const totalReviews = data.length;  // 全体のレビュー件数
 
-        if (data.length > (currentPage * itemsPerPage) + 1){
-            return true;
-        } else {
-            console.log(`データ数不足`);
-            return false;
-        }
-    } catch (error) {
-        console.error("IndexedDBのデータ取得エラー: ", error);
-        return false;
-    }
+                    // hidden inputからcurrentPageの値を取得
+                    let currentPage = parseInt(document.getElementById('currentPage').value, 10) || 1;
+                    let back_currentPage = currentPage - 1;
+                    const itemsPerPage = 20;  // 1ページに表示するレビューの件数
+
+                    // 表示するレビューの開始と終了インデックスを計算
+                    const start = (back_currentPage -1) * itemsPerPage;
+                    const end = Math.min(start + itemsPerPage, totalReviews);  // 残りのデータが少ない場合は最後まで表示
+                    const reviewsToDisplay = data.slice(start, end);  // 現在のページのレビューを取得
+
+                    // レビューを表に追加
+                    reviewsToDisplay.forEach((review, index) => {
+                        const row = reviewTable.insertRow();
+                        let cellNo = row.insertCell(0);
+                        let cellDate = row.insertCell(1);
+                        let cellSentiment = row.insertCell(2);
+                        let cellSummary = row.insertCell(3);
+                        let cellOriginal = row.insertCell(4);
+
+                        cellNo.textContent = start + index + 1;  // 正しい番号を設定
+                        cellDate.textContent = review.date;
+                        cellSentiment.textContent = review.sentiment;
+                        cellSummary.textContent = review.summary;
+                        cellOriginal.textContent = review.original;
+
+                        // 背景色設定
+                        if (review.sentiment === '+') {
+                            cellSentiment.style.backgroundColor = 'rgba(0, 0, 255, 0.2)';
+                        } else if (review.sentiment === '-') {
+                            cellSentiment.style.backgroundColor = 'rgba(255, 0, 0, 0.2)';
+                        } else if (review.sentiment === '~') {
+                            cellSentiment.style.backgroundColor = 'rgba(0, 255, 0, 0.2)';
+                        }
+                    });
+
+                     // ページ番号を更新
+                    const currentPageDisplay = document.getElementById('currentPageDisplay');
+                    currentPageDisplay.textContent = `${back_currentPage}ページ目`;
+
+                    // 「次へ」ボタンの表示・非表示を制御
+                    const nextPageButton = document.querySelector(".nextpageButton");
+                    if (totalReviews > end) {
+                        nextPageButton.style.display = 'inline';  // まだ次のページがある場合は表示
+                    } else {
+                        nextPageButton.style.display = 'none';  // これ以上のデータがない場合は非表示
+                    }
+
+                    // 「前へ」ボタンの表示・非表示を制御
+                    const backPageButton = document.querySelector(".backpageButton");
+                    if (currentPage > 1) {
+                        backPageButton.style.display = 'inline';  // 1ページ目以外は表示
+                    } else {
+                        backPageButton.style.display = 'none';  // 1ページ目の場合は非表示
+                    }
+                })
+                .catch(error => console.error("データ取得エラー: ", error));
+        })
+        .catch(error => console.error("Database error:", error));
 }
 
-// サーバーからレビューを取得する関数
-function fetchMoreReviewsFromServer() {
-    fetch('/fetch-more-reviews', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ page: currentPage }),  // 現在のページをサーバーに送信
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.error) {
-            console.error('サーバーエラー: ', data.error);
-        } else {
-            // サーバーから取得したレビューをIndexedDBに保存し、表示を更新
-            data.reviews.forEach(review => {
-                const convertedReview = convertReviewData(review);
-                saveDataToIndexedDB(db, convertedReview);  // 各レビューを保存
-            });
-            displayReviews();  // 新しいレビューを表示
-        }
-    })
-    .catch(error => console.error('サーバーからのデータ取得エラー: ', error));
-}
-// ページ切替ボタンのクリックイベント
-document.addEventListener("DOMContentLoaded", function() {
-    const nextPageButton = document.querySelector("#nextpageButton");
-    const backPageButton = document.querySelector("#backpageButton");
+document.addEventListener("DOMContentLoaded", function () {
 
-    if (nextPageButton) {
-        nextPageButton.addEventListener('click', async () => {
-           // IndexedDB内のデータ数をチェックする
-           const isDataAvailable = await checkIndexedDBData();
-           if (isDataAvailable) {
-            // 次ページ分もDB保存内のデータを用いて表示できる場合
-               currentPage++;
-               displayReviews();
-           } else {
-               // サーバー側でレビュー補充処理を行う
-               console.log('レビュー補充');
-               // ここにサーバーにデータリクエストを送る処理を追加
-               fetchMoreReviewsFromServer().then(() => {
-                currentPage++;  // ここでインクリメント
-            });
-           }
-        });
-    }
+    // beforeunload イベントリスナー
+    var onBeforeunloadHandler = function(e) {
+        e.preventDefault();
+        e.returnValue = '';
+    };
 
-    if (backPageButton) {
-        backPageButton.addEventListener('click', () => {
-            if (currentPage > 1) {
-                currentPage--;
-                displayReviews();
-            }
+    // beforeunload イベントを追加
+    window.addEventListener("beforeunload", onBeforeunloadHandler, false);
+
+    const formBtns = document.querySelectorAll(".backpageButton,.nextpageButton,#backToSearchSubmit");
+
+    formBtns.forEach(function (formBtn) {
+        formBtn.addEventListener("click", function () {
+            // 特定の操作（ページ遷移）時には確認ダイアログを出さない
+            window.removeEventListener("beforeunload", onBeforeunloadHandler);
         });
-    }
+    });
 });
-
