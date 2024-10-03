@@ -159,7 +159,7 @@ function displayReviews() {
 
                      // ページ番号を更新
                     const currentPageDisplay = document.getElementById('currentPageDisplay');
-                    currentPageDisplay.textContent = `${currentPage}ページ目`;
+                    currentPageDisplay.textContent = `${currentPage}`;
 
                     // 「次へ」ボタンの表示・非表示を制御
                     const nextPageButton = document.querySelector(".nextpageButton");
@@ -195,16 +195,100 @@ document.querySelector(".backpageButton").addEventListener('click', () => {
     }
 });
 
-// IndexedDBのデータをチェックする関数
-async function checkIndexedDBData() {
-    try {
-        const db = await openDatabase();
-        const data = await getAllDataFromIndexedDB(db);
-        return data.length >= 20;
-    } catch (error) {
-        console.error("IndexedDBのデータ取得エラー: ", error);
-        return false;
+// // DBデータチェック、正解どっちだよ、これは旧バージョン(^^♪
+// async function checkIndexedDBData() {
+//     try {
+//         const db = await openDatabase();
+//         const data = await getAllDataFromIndexedDB(db);
+//         return data.length >= 20;
+//     } catch (error) {
+//         console.error("IndexedDBのデータ取得エラー: ", error);
+//         return false;
+//     }
+// }
+
+// // DBデータチェック、なんか動くけどなんでか分からん方(;^ω^)
+function checkIndexedDBData() {
+    const db = openDatabase();
+    const data = getAllDataFromIndexedDB(db);
+    let check_flag = false;
+    // hidden inputからcurrentPageの値を取得
+    let currentPage = parseInt(document.getElementById('currentPage').value, 10) || 1;
+    currentPage ++;
+    itemsPerPage = 20;
+    if (data.length > (currentPage * itemsPerPage) + 1){
+        check_flag = true;
+        return check_flag;
     }
+}
+
+// 戻りの表示
+function displaybackReviews() {
+    openDatabase()
+        .then(db => {
+            getAllDataFromIndexedDB(db)
+                .then(data => {
+                    const reviewTable = document.querySelector('#review-table tbody');  // 表のtbody要素を取得
+                    reviewTable.innerHTML = '';  // 表の内容をクリア
+                    const totalReviews = data.length;  // 全体のレビュー件数
+
+                    // hidden inputからcurrentPageの値を取得
+                    let currentPage = parseInt(document.getElementById('currentPage').value, 10) || 1;
+                    const itemsPerPage = 20;  // 1ページに表示するレビューの件数
+
+                    // 表示するレビューの開始と終了インデックスを計算
+                    const start = (currentPage -1) * itemsPerPage;
+                    const end = Math.min(start + itemsPerPage, totalReviews);  // 残りのデータが少ない場合は最後まで表示
+                    const reviewsToDisplay = data.slice(start, end);  // 現在のページのレビューを取得
+
+                    // レビューを表に追加
+                    reviewsToDisplay.forEach((review, index) => {
+                        const row = reviewTable.insertRow();
+                        let cellNo = row.insertCell(0);
+                        let cellDate = row.insertCell(1);
+                        let cellSentiment = row.insertCell(2);
+                        let cellSummary = row.insertCell(3);
+                        let cellOriginal = row.insertCell(4);
+
+                        cellNo.textContent = start + index + 1;  // 正しい番号を設定
+                        cellDate.textContent = review.date;
+                        cellSentiment.textContent = review.sentiment;
+                        cellSummary.textContent = review.summary;
+                        cellOriginal.textContent = review.original;
+
+                        // 背景色設定
+                        if (review.sentiment === '+') {
+                            cellSentiment.style.backgroundColor = 'rgba(0, 0, 255, 0.2)';
+                        } else if (review.sentiment === '-') {
+                            cellSentiment.style.backgroundColor = 'rgba(255, 0, 0, 0.2)';
+                        } else if (review.sentiment === '~') {
+                            cellSentiment.style.backgroundColor = 'rgba(0, 255, 0, 0.2)';
+                        }
+                    });
+
+                     // ページ番号を更新
+                    const currentPageDisplay = document.getElementById('currentPageDisplay');
+                    currentPageDisplay.textContent = `${currentPage}`;
+
+                    // 「次へ」ボタンの表示・非表示を制御
+                    const nextPageButton = document.querySelector(".nextpageButton");
+                    if (totalReviews > end) {
+                        nextPageButton.style.display = 'inline';  // まだ次のページがある場合は表示
+                    } else {
+                        nextPageButton.style.display = 'none';  // これ以上のデータがない場合は非表示
+                    }
+
+                    // 「前へ」ボタンの表示・非表示を制御
+                    const backPageButton = document.querySelector(".backpageButton");
+                    if (currentPage > 1) {
+                        backPageButton.style.display = 'inline';  // 1ページ目以外は表示
+                    } else {
+                        backPageButton.style.display = 'none';  // 1ページ目の場合は非表示
+                    }
+                })
+                .catch(error => console.error("データ取得エラー: ", error));
+        })
+        .catch(error => console.error("Database error:", error));
 }
 
 document.addEventListener("DOMContentLoaded", function () {

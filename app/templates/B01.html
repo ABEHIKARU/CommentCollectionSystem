@@ -63,12 +63,17 @@
     <div id="errorMessage"></div>
 
     <div id="pagination-controls">
-        <button type="button" id="backpageButton" name="backpageButton" class="backpageButton" style="display: inline;">前へ</button>
-        
+        <form id="B01_backPage" method="POST" action="/B01_backPage">
+        <input type="button" id="backpageButton" name="backpageButton" class="backpageButton" value ="前へ" style="display: inline;">
+        <input type="hidden" id="currentPage" name="currentPage" value="{{ currentPage }}">
+        </form>
         <div>
-            <span id="currentPageDisplay">{{ current_page }}</span>
+            <span id="currentPageDisplay"></span>
         </div>
-        <button type="button" id="nextpageButton" name="nextpageButton" class="nextpageButton" style="display: inline;">次へ</button>
+        <form id="B01_nextPage" method="POST" action="/B01_nextPage">
+            <input type="hidden" id="currentPage" name="currentPage" value="{{ currentPage }}">
+            <input type="submit" id="nextpageButton" name="nextpageButton" class="nextpageButton" value="次へ" style="display: inline;">
+        </form>
     </div>
     
 

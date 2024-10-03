@@ -36,6 +36,11 @@ def show_b01():
     # ネガポジ種別フラグの文字列化
     sentiment = convert_sentiment_flag(flag)
 
+    # セッションに値を設定する
+    session['keyword'] = keyword
+    session['appName'] = appName
+    session['sentiment'] = sentiment
+
     filtered_reviews=pd.DataFrame()  # ネガポジ判断後のdfを初期化
     continuation_token=None  # 継続トークンの初期化
 
@@ -102,8 +107,11 @@ def show_b01():
     # クリーンアップ後のデータフレームをJSONに変換 (ASCII以外の文字も含めて出力)
     df_all = json.dumps(cleaned_reviews.to_dict(orient='records'), ensure_ascii=False)
     
+    # 初期表示のため、現ページを1と設定
+    currentPage = 1
+
     # データが存在する場合
-    return render_template('B01.html', appName=appName, start_date=start_date, end_date=end_date, sentiment=sentiment, keyword=keyword, reviews=df_all)
+    return render_template('B01.html', appName=appName, start_date=start_date, end_date=end_date, sentiment=sentiment, keyword=keyword, reviews=df_all, currentPage = currentPage)
     
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # 関数
@@ -207,14 +215,16 @@ def secured_21_reviews(df_scraping_reviews, continuation_token1, start, end, sta
 
         # 21件のレビューを取得
         df_S = pd.concat([df_S, df_scraping_reviews[start:end]], ignore_index=True)
-        start += 21
-        end += 21
+        
+        # ↓不要
+        # start += 21
+        # end += 21
         
         # 開始日発見フラグがある場合
         if start_date_flag==True:
             break
 
-    return df_S, start, end, continuation_token1
+    return df_S, start, end, continuation_token1↓
 
 def filterling_keyword(df_21_reviews, keyword):
     """キーワードフィルタリング"""
@@ -325,34 +335,110 @@ def clean_reviews_column(filtered_reviews, column_name='content'):
     filtered_reviews[column_name] = filtered_reviews[column_name].apply(clean_invalid_json_chars)
     return filtered_reviews
 
+# 次へ押下時ページ数更新
+def current_page_set():
+    currentPage = request.form.get('currentPage')
+    
+    if currentPage is None or currentPage.strip() == '':  # Noneまたは空の場合、デフォルト値を設定
+        return 1  # デフォルトは1ページ目
+    else:
+        return int(currentPage) + 1  # 現在のページに1を加える
+    
+# 前へ押下時ページ数更新
+def current_page_back_set():
+    currentPage = request.form.get('currentPage')
+    
+    if currentPage is None or currentPage.strip() == '':  # Noneまたは空の場合、デフォルト値を設定
+        return 1  # デフォルトは1ページ目
+    else:
+        return int(currentPage) - 1  # 現在のページから1を引く
+
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # イベント処理
-@b01_bp.route('/B01_next_back_event', methods=['POST'])
+@b01_bp.route('/B01_nextPage', methods=['POST'])
 def next_b01():
-    # 現在のページをセッションから取得
-    current_page = session.get('current_page', 1)
+    # 現在ページの設定
+    currentPage = current_page_set()
 
-    # ボタンがどちらかを確認
-    if 'nextpageButton' in request.form:
-        current_page += 1  # 次のページへ
-    elif 'backpageButton' in request.form:
-        current_page -= 1  # 前のページへ
+    # セッションから値を取得
+    app_id = session['app_id']
+    start_date = session['start_date']
+    end_date = session['end_date']
+    keyword = session['keyword']
+    appName = session['appName']
+    sentiment = session['sentiment']
 
-    # ページ範囲の制御（例えば、1ページ目より小さくならないように）
-    current_page = max(1, current_page)
+    continuation_token=None  # 継続トークンの初期化
 
-    # セッションに現在のページを保存
-    session['current_page'] = current_page
-
-    # レビューを取得するための処理を追加（ここは必要に応じて変更）
-    # 例えば、データベースからレビューを取得し、テンプレートに渡すなど
-    # ここで必要なレビューを取得する関数を呼び出す
-
-    return render_template('B01.html', current_page=current_page)
+    # レビュー1000件抽出
+    df_scraping_reviews, continuation_token1, start_date_flag = scraping_reviews(app_id, end_date, start_date, continuation_token)
 
 
-    # 該当ページのデータがIndexedDB内にない場合
+    # レビューが空の場合のエラーメッセージ
+    if df_scraping_reviews.empty:
+        errorMessage_list = "条件に一致するレビューが見つかりませんでした"
+        return render_template('B01.html', errorMessage_list=errorMessage_list)
+    
+    filtered_reviews=pd.DataFrame()  # ネガポジ判断後のdfを初期化
 
-    # 期間フィルタリング
-    # 終了日から21件のデータを確保する。このとき下図のように、開始日を超えないように、開始日より過去のデータは除外する。
-    # から、やる。
+    # startとendの計算
+    start = (currentPage * 20) + 1
+    end = start + 21
+
+    # 指定された期間内のレビューが見つかるまで繰り返す
+    while len(filtered_reviews) < 21:
+        # レビュー21件確保
+        df_21_reviews, start, end, continuation_token1 = secured_21_reviews(df_scraping_reviews, continuation_token1, start, end, start_date_flag, app_id, start_date, end_date)
+
+        # レビュー21件確保できない場合 TODO 要修正
+        if df_21_reviews.empty:
+            break
+        
+        # キーワード指定
+        if keyword != 'なし':
+            df_21_reviews = filterling_keyword(df_21_reviews, keyword)
+            
+            # キーワードフィルタリングの結果、レビューが0件になった場合
+            if df_21_reviews.empty:
+                errorMessage_list = "条件に一致するレビューが見つかりませんでした"
+                return render_template('B01.html',appName=appName, start_date=start_date, end_date=end_date, sentiment=sentiment, keyword=keyword, errorMessage_list=errorMessage_list)
+
+        # ネガポジフィルタリング
+        filtered_reviews = pd.concat([filtered_reviews, filter_reviews_by_sentiment(df_21_reviews, sentiment)], ignore_index=True)
+
+    # 要約翻訳
+    filtered_reviews = process_reviews(filtered_reviews)
+
+    # データが存在しない場合
+    if filtered_reviews.empty:
+        errorMessage_list = "条件に一致するレビューが見つかりませんでした"
+        return render_template('B01.html', errorMessage_list=errorMessage_list)
+    
+    filtered_reviews['at'] = pd.to_datetime(filtered_reviews['at']).dt.strftime('%Y/%m/%d %H:%M')
+    print(filtered_reviews) #TODO リリース時には削除する
+    
+    # JSONに変換する前に文字列列をクリーンアップ
+    cleaned_reviews = clean_reviews_column(filtered_reviews, column_name='content')
+    print(cleaned_reviews)
+    # クリーンアップ後のデータフレームをJSONに変換 (ASCII以外の文字も含めて出力)
+    df_all = json.dumps(cleaned_reviews.to_dict(orient='records'), ensure_ascii=False)
+    
+
+    print(df_scraping_reviews.head())  # スクレイピング直後のデータを確認
+    print(filtered_reviews.head())     # フィルタリング後のデータを確認
+
+    # データが存在する場合
+    return render_template('B01.html', appName=appName, start_date=start_date, end_date=end_date, sentiment=sentiment, keyword=keyword, reviews=df_all, currentPage = currentPage)
+
+@b01_bp.route('/B01_backPage', methods=['POST'])
+def back_b01():
+    # 現在ページの設定
+    currentPage = current_page_back_set()
+
+    appName = session['appName']
+    start_date = session['start_date']
+    end_date = session['end_date']
+    sentiment = session['sentiment']
+    keyword = session['keyword']
+
+    return render_template('B01.html', currentPage = currentPage, appName = appName, start_date = start_date, end_date = end_date, sentiment = sentiment, keyword = keyword)
