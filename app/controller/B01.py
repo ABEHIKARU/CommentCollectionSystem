@@ -224,7 +224,7 @@ def secured_21_reviews(df_scraping_reviews, continuation_token1, start, end, sta
         if start_date_flag==True:
             break
 
-    return df_S, start, end, continuation_token1↓
+    return df_S, start, end, continuation_token1
 
 def filterling_keyword(df_21_reviews, keyword):
     """キーワードフィルタリング"""
